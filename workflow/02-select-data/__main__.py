@@ -52,10 +52,10 @@ def main(
         ),
     ] = None,
 ):
-    if spice_subsets is None:
-        spice_subsets = DEFAULT_SPICE_SUBSETS
-
-    spice_ds = load_spice(spice_file, subsets=spice_subsets)
+    spice_ds = load_spice(
+        spice_file,
+        subsets=DEFAULT_SPICE_SUBSETS if spice_subsets is None else spice_subsets,
+    )
     tetramers_ds = load_qcarchive(tetramers_files)
 
     spice_ds = filter_forces(spice_ds)

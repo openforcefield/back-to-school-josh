@@ -15,6 +15,21 @@ from rdkit.SimDivFilters.rdSimDivPickers import MaxMinPicker
 from torch import Tensor
 from tqdm import tqdm
 
+DEFAULT_SPICE_SUBSETS = [
+    "SPICE DES Monomers Single Points Dataset v1.1",
+    "SPICE Dipeptides Single Points Dataset v1.3",
+    "SPICE PubChem Set 1 Single Points Dataset v1.3",
+    "SPICE PubChem Set 2 Single Points Dataset v1.3",
+    "SPICE PubChem Set 3 Single Points Dataset v1.3",
+    "SPICE PubChem Set 4 Single Points Dataset v1.3",
+    "SPICE PubChem Set 5 Single Points Dataset v1.3",
+    "SPICE PubChem Set 6 Single Points Dataset v1.3",
+    "SPICE PubChem Set 7 Single Points Dataset v1.0",
+    "SPICE PubChem Set 8 Single Points Dataset v1.0",
+    "SPICE PubChem Set 9 Single Points Dataset v1.0",
+    "SPICE PubChem Set 10 Single Points Dataset v1.0",
+]
+
 
 def main(
     spice_file: Annotated[
@@ -32,26 +47,13 @@ def main(
     spice_subsets: Annotated[
         list[str] | None,
         typer.Argument(
-            help="Names of the subsets in the spice file to use [default: see code]",
-            show_default=False,
+            help="Names of the subsets in the spice file to use",
+            show_default=" ".join(repr(s) for s in DEFAULT_SPICE_SUBSETS),
         ),
     ] = None,
 ):
     if spice_subsets is None:
-        spice_subsets = [
-            "SPICE DES Monomers Single Points Dataset v1.1",
-            "SPICE Dipeptides Single Points Dataset v1.3",
-            "SPICE PubChem Set 1 Single Points Dataset v1.3",
-            "SPICE PubChem Set 2 Single Points Dataset v1.3",
-            "SPICE PubChem Set 3 Single Points Dataset v1.3",
-            "SPICE PubChem Set 4 Single Points Dataset v1.3",
-            "SPICE PubChem Set 5 Single Points Dataset v1.3",
-            "SPICE PubChem Set 6 Single Points Dataset v1.3",
-            "SPICE PubChem Set 7 Single Points Dataset v1.0",
-            "SPICE PubChem Set 8 Single Points Dataset v1.0",
-            "SPICE PubChem Set 9 Single Points Dataset v1.0",
-            "SPICE PubChem Set 10 Single Points Dataset v1.0",
-        ]
+        spice_subsets = DEFAULT_SPICE_SUBSETS
 
     spice_ds = load_spice(spice_file, subsets=spice_subsets)
     tetramers_ds = load_qcarchive(tetramers_files)

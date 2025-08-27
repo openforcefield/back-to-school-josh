@@ -17,3 +17,9 @@ openff-qcsubmit = ">=0.56.0,<0.57"
 openeye-toolkits = ">=2025.1.1,<2026"
 loguru = ">=0.7.3,<0.8"
 tqdm = ">=4.67.1,<5"
+datasets = ">=4.0.0,<5"
+h5py = ">=3.13.0,<4"
+numpy = ">=1.26.4,<2"
+
+[pypi-dependencies]
+deepchem = ">=2.8.0, <3"

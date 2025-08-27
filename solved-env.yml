@@ -50,7 +50,7 @@ dependencies:
   - bson=0.5.10=pyhd8ed1ab_0
   - bzip2=1.0.8=h4bc722e_7
   - c-ares=1.34.5=hb9d3cd8_0
-  - c-blosc2=2.15.2=h3122c55_1
+  - c-blosc2=2.17.1=h3122c55_0
   - ca-certificates=2025.8.3=hbd8a1cb_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
@@ -101,9 +101,9 @@ dependencies:
   - greenlet=3.2.4=py312h1289d80_0
   - h11=0.16.0=pyhd8ed1ab_0
   - h2=4.2.0=pyhd8ed1ab_0
-  - h5py=3.12.1=nompi_py312hd203070_103
+  - h5py=3.13.0=nompi_py312hedeef09_100
   - hdf4=4.2.15=h2a13503_7
-  - hdf5=1.14.4=nompi_h2d575fe_105
+  - hdf5=1.14.3=nompi_h2d575fe_109
   - hf-xet=1.1.8=py39h598437d_0
   - hpack=4.1.0=pyhd8ed1ab_0
   - httpcore=1.0.9=pyh29332c3_0
@@ -186,7 +186,7 @@ dependencies:
   - liblapack=3.9.0=34_hc41d3b0_mkl
   - liblzma=5.8.1=hb9d3cd8_2
   - liblzma-devel=5.8.1=hb9d3cd8_2
-  - libnetcdf=4.9.2=nompi_h2564987_115
+  - libnetcdf=4.9.2=nompi_h135f659_114
   - libnghttp2=1.64.0=h161d5f1_0
   - libnsl=2.0.1=hb9d3cd8_1
   - libopentelemetry-cpp=1.21.0=hd1b1c89_0
@@ -237,7 +237,7 @@ dependencies:
   - nbformat=5.10.4=pyhd8ed1ab_1
   - ncurses=6.5=h2d0b736_3
   - nest-asyncio=1.6.0=pyhd8ed1ab_1
-  - netcdf-fortran=4.6.1=nompi_ha5d1325_108
+  - netcdf-fortran=4.6.1=nompi_h22f9119_108
   - networkx=3.5=pyhe01879c_0
   - nlohmann_json=3.12.0=h3f2d84a_0
   - nnpops=0.6=cpu_py312h9c0d517_14
@@ -306,7 +306,7 @@ dependencies:
   - pyjwt=2.10.1=pyhd8ed1ab_0
   - pyparsing=3.2.3=pyhe01879c_2
   - pysocks=1.7.1=pyha55dd90_7
-  - pytables=3.10.2=py312hf8651a9_0
+  - pytables=3.10.2=py312h2895ec7_2
   - pytest=8.4.1=pyhd8ed1ab_0
   - python=3.12.0=hab00c5b_0_cpython
   - python-constraint=1.4.0=pyhff2d567_1

@@ -1,5 +1,6 @@
+import pickle
 import warnings
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Annotated
 
@@ -8,7 +9,9 @@ import descent.targets.energy
 import h5py
 import numpy
 import typer
+from loguru import logger
 from openff.units import Quantity, unit
+from qcportal.client import OptimizationRecord
 from rdkit import Chem
 from rdkit.Chem import rdFingerprintGenerator
 from rdkit.SimDivFilters.rdSimDivPickers import MaxMinPicker
@@ -36,7 +39,7 @@ def main(
         Path,
         typer.Argument(help="Path to find SPICE data file"),
     ] = Path(".data/SPICE-2.0.1.hdf5"),
-    tetramers_files: Annotated[
+    tetramers_dir: Annotated[
         Path,
         typer.Argument(help="Path to find downloaded QCArchive data files"),
     ] = Path(".data/qcarchive/records"),
@@ -56,14 +59,16 @@ def main(
         spice_file,
         subsets=DEFAULT_SPICE_SUBSETS if spice_subsets is None else spice_subsets,
     )
-    tetramers_ds = load_qcarchive(tetramers_files)
+    tetramers_ds = load_qcarchive(tetramers_dir.glob("*/record.pickle"))
 
-    spice_ds = filter_forces(spice_ds)
+    # spice_ds = filter_forces(spice_ds)
 
+    logger.info("Splitting SPICE2 dataset into train and test")
     train_spice_ds, test_spice_ds = train_test_split(
         spice_ds,
         frac_test=0.05,
     )
+    logger.info("Splitting tetramers dataset into train and test")
     train_tetramers_ds, test_tetramers_ds = train_test_split(
         tetramers_ds,
         frac_test=0.05,
@@ -76,6 +81,10 @@ def main(
 
 
 def load_spice(spice_file: Path, subsets: Sequence[str]) -> datasets.Dataset:
+    """
+    Load certain subsets of a SPICE dataset from a hdf5 file into a Smee dataset.
+    """
+    logger.info(f"Loading {subsets} from {spice_file}")
     data: list[descent.targets.energy.Entry] = []
 
     with h5py.File(spice_file) as hdf5_file:
@@ -112,7 +121,7 @@ def load_spice(spice_file: Path, subsets: Sequence[str]) -> datasets.Dataset:
 
             dft_total_gradient = (
                 Quantity(
-                    numpy.asarray(record["dft_total_gradient"]),
+                    -numpy.asarray(record["dft_total_gradient"]),
                     "hartree/bohr",
                 )
                 * unit.avogadro_constant
@@ -145,11 +154,55 @@ def load_spice(spice_file: Path, subsets: Sequence[str]) -> datasets.Dataset:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
         ds = descent.targets.energy.create_dataset(data)
+
+    logger.info(f"Loaded {len(ds)} molecules")
     return ds
 
 
-def load_qcarchive(files: Path) -> datasets.Dataset:
-    raise NotImplementedError()
+def load_qcarchive(record_paths: Iterable[Path]) -> datasets.Dataset:
+    """Load pickled qcarchive optimization records into a Smee dataset"""
+    data: list[descent.targets.energy.Entry] = []
+    for record_path in record_paths:
+        with open(record_path, "rb") as f:
+            record = pickle.load(f)
+        assert isinstance(record, OptimizationRecord)
+        assert record.trajectory is not None
+
+        last = record.trajectory[-1]
+        last_mol = last.molecule
+        assert last_mol.identifiers is not None
+        assert last.properties is not None
+
+        smiles = last_mol.identifiers.canonical_isomeric_explicit_hydrogen_mapped_smiles
+        assert isinstance(smiles, str)
+
+        coords = Quantity(last_mol.geometry, "bohr").m_as("angstrom")
+        energy = (
+            Quantity(last.properties["return_energy"], "hartree")
+            * unit.avogadro_constant
+        ).m_as(
+            "kcal/mol",
+        )
+        gradient = numpy.array(last.properties["scf total gradient"]).reshape((-1, 3))
+        forces = (Quantity(-gradient, "hartree/bohr") * unit.avogadro_constant).m_as(
+            "kcal/mol/angstrom",
+        )
+        assert isinstance(forces, numpy.ndarray)
+
+        data.append(
+            descent.targets.energy.Entry(
+                smiles=smiles,
+                coords=Tensor(coords),
+                energy=Tensor(energy),
+                forces=Tensor(forces),
+            ),
+        )
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        ds = descent.targets.energy.create_dataset(data)
+
+    return ds
 
 
 def filter_forces(ds: datasets.Dataset) -> datasets.Dataset:
@@ -172,6 +225,11 @@ def train_test_split(
 
     train_ds = ds.select(indices=train_indices)
     test_ds = ds.select(indices=test_indices)
+    assert len(train_ds) + len(test_ds) == len(ds)
+    logger.info(
+        f"split dataset of {len(ds)} molecules into"
+        + f" training set of {len(train_ds)} and testing set of {len(test_ds)}",
+    )
     return train_ds, test_ds
 
 
@@ -200,6 +258,11 @@ def choose_diverse_molecules(
 
 
 if __name__ == "__main__":
-    app = typer.Typer(add_completion=False, pretty_exceptions_enable=False)
+    logger.add(Path(__file__).with_suffix(".py.log"), delay=True)
+    app = typer.Typer(
+        add_completion=False,
+        rich_markup_mode="rich",
+        pretty_exceptions_enable=False,
+    )
     app.command(help=__doc__)(main)
     app()

@@ -210,3 +210,4 @@ __marimo__/
 .zed/
 .data/
 !pyrightconfig.json
+!*.py.log

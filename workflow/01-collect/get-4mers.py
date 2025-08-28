@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-""" """
+"""
+Download the 4-mers dataset from QCArchive to disk for later processing.
+
+Output files:
+    {data_dir}/optimization-result-collection.json
+        JSON serialized result collection
+    {data_dir}/records/{record_id}/molecule.sdf
+        SDF of molecule
+    {data_dir}/records/{record_id}/record.pickle
+        Pickled result record
+"""
 
 import pickle
 from pathlib import Path
@@ -11,12 +21,23 @@ from openff.qcsubmit.results import OptimizationResultCollection
 from qcportal import PortalClient
 from tqdm import tqdm
 
+DEFAULT_DATASETS = [
+    "OpenFF Protein PDB 4-mers v4.0",
+]
+
 
 def main(
     data_dir: Annotated[
         Path,
         typer.Argument(help="Directory to download data to"),
     ] = Path(".data/qcarchive"),
+    datasets: Annotated[
+        list[str] | None,
+        typer.Argument(
+            help="Datasets to download from QCArchive",
+            show_default=" ".join(map(repr, DEFAULT_DATASETS)),
+        ),
+    ] = None,
 ):
     data_dir.mkdir(exist_ok=True)
 
@@ -34,9 +55,7 @@ def main(
     else:
         optimization_result_collection = OptimizationResultCollection.from_server(
             client=qc_client,
-            datasets=[
-                "OpenFF Protein PDB 4-mers v4.0",
-            ],
+            datasets=DEFAULT_DATASETS if datasets is None else datasets,
             spec_name="default",
         )
         opt_result_collection_path.write_text(optimization_result_collection.json())
@@ -56,6 +75,7 @@ def main(
 
 
 if __name__ == "__main__":
-    app = typer.Typer(add_completion=False)
+    logger.add(Path(__file__).with_suffix(".py.log"), delay=True)
+    app = typer.Typer(add_completion=False, rich_markup_mode="rich")
     app.command(help=__doc__)(main)
     app()

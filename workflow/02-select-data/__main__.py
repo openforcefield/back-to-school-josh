@@ -1,21 +1,40 @@
+#!/usr/bin/env python3
+"""
+Filter, split, and convert the 4mers and SPICE2 datasets into Descent datasets.
+
+Output files:
+    datasets/spice2/test
+        Descent/huggingface test dataset for SPICE2
+    datasets/spice2/test
+        Descent/huggingface train dataset for SPICE2
+    datasets/tetramers/test
+        Descent/huggingface test dataset for 4-mers
+    datasets/tetramers/test
+        Descent/huggingface train dataset for 4-mers
+    __main__.py.forces.png
+        Histogram of max absolute forces and filtered cutoffs
+"""
+
 import pickle
 import warnings
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any, Literal, assert_never
+from collections.abc import Iterable
 
 import datasets
 import descent.targets.energy
 import h5py
-import numpy
+import matplotlib.pyplot as plt
+import numpy as np
 import typer
 from loguru import logger
 from openff.units import Quantity, unit
-from qcportal.client import OptimizationRecord
+from qcportal.client import SinglepointRecord
 from rdkit import Chem
 from rdkit.Chem import rdFingerprintGenerator
 from rdkit.SimDivFilters.rdSimDivPickers import MaxMinPicker
-from torch import Tensor
+from torch import Tensor, tensor
 from tqdm import tqdm
 
 DEFAULT_SPICE_SUBSETS = [
@@ -35,52 +54,86 @@ DEFAULT_SPICE_SUBSETS = [
 
 
 def main(
+    *,
     spice_file: Annotated[
         Path,
-        typer.Argument(help="Path to find SPICE data file"),
+        typer.Option(help="Path to find SPICE data file"),
     ] = Path(".data/SPICE-2.0.1.hdf5"),
     tetramers_dir: Annotated[
         Path,
-        typer.Argument(help="Path to find downloaded QCArchive data files"),
-    ] = Path(".data/qcarchive/records"),
+        typer.Option(help="Path to find downloaded QCArchive records"),
+    ] = Path(".data/qcarchive/"),
     output_dir: Annotated[
         Path,
-        typer.Argument(help="Path to find save filter"),
+        typer.Option(help="Path to find save filter"),
     ] = Path("workflow/02-select-data/datasets"),
     spice_subsets: Annotated[
-        list[str] | None,
-        typer.Argument(
-            help="Names of the subsets in the spice file to use",
-            show_default=" ".join(repr(s) for s in DEFAULT_SPICE_SUBSETS),
+        list[str],
+        typer.Option(help="Names of the subsets in the spice file to use"),
+    ] = DEFAULT_SPICE_SUBSETS,
+    spice_n_records: Annotated[
+        int | None,
+        typer.Option(
+            help="Load only the first this many records from SPICE",
+            show_default="All",
         ),
     ] = None,
+    spice_drop_forces: Annotated[
+        float,
+        typer.Option(
+            help="Drop this proportion of all SPICE entries with the greatest forces",
+        ),
+    ] = 0.025,
+    spice_drop_forces_metric: Annotated[
+        str,
+        typer.Option(
+            help=(
+                "The metric to use when filtering forces."
+                + " MABS: Maximum absolute force. RMS: Root mean square force."
+            ),
+        ),
+    ] = "MABS",
 ):
     spice_ds = load_spice(
         spice_file,
-        subsets=DEFAULT_SPICE_SUBSETS if spice_subsets is None else spice_subsets,
+        subsets=spice_subsets,
+        stop_early=spice_n_records,
     )
-    tetramers_ds = load_qcarchive(tetramers_dir.glob("*/record.pickle"))
 
-    # spice_ds = filter_forces(spice_ds)
+    spice_ds = filter_forces(
+        spice_ds,
+        keep_frac=1.0 - spice_drop_forces,
+        metric=spice_drop_forces_metric,
+    )
 
     logger.info("Splitting SPICE2 dataset into train and test")
     train_spice_ds, test_spice_ds = train_test_split(
         spice_ds,
         frac_test=0.05,
     )
+
+    logger.info("Saving SPICE2 datasets to disk")
+    train_spice_ds.save_to_disk(output_dir / "spice2/train")
+    test_spice_ds.save_to_disk(output_dir / "spice2/test")
+
+    tetramers_ds = load_qcarchive(tetramers_dir.glob("records/*/record.pickle"))
+
     logger.info("Splitting tetramers dataset into train and test")
     train_tetramers_ds, test_tetramers_ds = train_test_split(
         tetramers_ds,
         frac_test=0.05,
     )
 
-    train_spice_ds.save_to_disk(output_dir / "spice2/train")
-    test_spice_ds.save_to_disk(output_dir / "spice2/test")
+    logger.info("Saving tetramers datasets to disk")
     train_tetramers_ds.save_to_disk(output_dir / "tetramers/train")
-    test_tetramers_ds.save_to_disk(output_dir / "tetramers/train")
+    test_tetramers_ds.save_to_disk(output_dir / "tetramers/test")
 
 
-def load_spice(spice_file: Path, subsets: Sequence[str]) -> datasets.Dataset:
+def load_spice(
+    spice_file: Path,
+    subsets: Sequence[str],
+    stop_early: int | None = None,
+) -> datasets.Dataset:
     """
     Load certain subsets of a SPICE dataset from a hdf5 file into a Smee dataset.
     """
@@ -88,11 +141,17 @@ def load_spice(spice_file: Path, subsets: Sequence[str]) -> datasets.Dataset:
     data: list[descent.targets.energy.Entry] = []
 
     with h5py.File(spice_file) as hdf5_file:
-        for record in tqdm(
-            hdf5_file.values(),
-            desc=f"Extracting {spice_file.name}",
-            ncols=80,
+        for i, record in enumerate(
+            tqdm(
+                hdf5_file.values(),
+                desc=f"Extracting {spice_file.name}",
+                ncols=80,
+            ),
         ):
+            if stop_early is not None and i >= stop_early:
+                logger.info(f"Stopping after {i} records as requested")
+                break
+
             assert isinstance(record, h5py.Group), type(record)
 
             smiles = record["smiles"].asstr()[0]  # type: ignore
@@ -106,27 +165,27 @@ def load_spice(spice_file: Path, subsets: Sequence[str]) -> datasets.Dataset:
 
             conformations = (
                 Quantity(
-                    numpy.asarray(record["conformations"]),
+                    np.asarray(record["conformations"]),
                     "hartree",
                 )
                 * unit.avogadro_constant
             ).m_as("kcal/mol")
-            assert isinstance(conformations, numpy.ndarray), type(conformations)
+            assert isinstance(conformations, np.ndarray), type(conformations)
 
             dft_total_energy = Quantity(
-                numpy.asarray(record["dft_total_energy"]),
+                np.asarray(record["dft_total_energy"]),
                 "bohr",
             ).m_as("angstrom")
-            assert isinstance(dft_total_energy, numpy.ndarray), type(dft_total_energy)
+            assert isinstance(dft_total_energy, np.ndarray), type(dft_total_energy)
 
             dft_total_gradient = (
                 Quantity(
-                    -numpy.asarray(record["dft_total_gradient"]),
+                    -np.asarray(record["dft_total_gradient"]),
                     "hartree/bohr",
                 )
                 * unit.avogadro_constant
             ).m_as("kcal/mol/angstrom")
-            assert isinstance(dft_total_gradient, numpy.ndarray), type(
+            assert isinstance(dft_total_gradient, np.ndarray), type(
                 dft_total_gradient,
             )
 
@@ -151,24 +210,36 @@ def load_spice(spice_file: Path, subsets: Sequence[str]) -> datasets.Dataset:
                     forces=Tensor(dft_total_gradient),
                 ),
             )
+    logger.info("Constructing dataset...")
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
         ds = descent.targets.energy.create_dataset(data)
-
-    logger.info(f"Loaded {len(ds)} molecules")
+    logger.info(f"Dataset constructed with {len(ds)} molecules")
     return ds
 
 
 def load_qcarchive(record_paths: Iterable[Path]) -> datasets.Dataset:
-    """Load pickled qcarchive optimization records into a Smee dataset"""
-    data: list[descent.targets.energy.Entry] = []
-    for record_path in record_paths:
-        with open(record_path, "rb") as f:
-            record = pickle.load(f)
-        assert isinstance(record, OptimizationRecord)
-        assert record.trajectory is not None
+    """Load pickled qcarchive single point records into a Smee dataset"""
+    logger.info("Loading records...")
+    records = [
+        unpickle(path)
+        for path in tqdm(
+            record_paths,
+            desc="Unpickling records",
+            ncols=80,
+        )
+    ]
+    logger.info(f"Loaded {len(records)} records")
 
-        last = record.trajectory[-1]
+    data: list[descent.targets.energy.Entry] = []
+    for record in tqdm(
+        records,
+        desc="Converting to Smee dataset entries",
+        ncols=80,
+    ):
+        assert isinstance(record, SinglepointRecord)
+
+        last = record
         last_mol = last.molecule
         assert last_mol.identifiers is not None
         assert last.properties is not None
@@ -183,36 +254,98 @@ def load_qcarchive(record_paths: Iterable[Path]) -> datasets.Dataset:
         ).m_as(
             "kcal/mol",
         )
-        gradient = numpy.array(last.properties["scf total gradient"]).reshape((-1, 3))
+        gradient = np.array(last.properties["scf total gradient"]).reshape((-1, 3))
         forces = (Quantity(-gradient, "hartree/bohr") * unit.avogadro_constant).m_as(
             "kcal/mol/angstrom",
         )
-        assert isinstance(forces, numpy.ndarray)
+        assert isinstance(forces, np.ndarray)
 
         data.append(
             descent.targets.energy.Entry(
                 smiles=smiles,
-                coords=Tensor(coords),
-                energy=Tensor(energy),
-                forces=Tensor(forces),
+                coords=tensor(coords),
+                energy=tensor([energy]),
+                forces=tensor(forces),
             ),
         )
 
+    logger.info("Constructing dataset...")
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
         ds = descent.targets.energy.create_dataset(data)
 
+    logger.info(f"Dataset constructed with {len(ds)} molecules")
     return ds
 
 
-def filter_forces(ds: datasets.Dataset) -> datasets.Dataset:
-    raise NotImplementedError()
+def filter_forces(
+    ds: datasets.Dataset,
+    keep_frac: float,
+    metric: Literal["RMS", "MABS"] = "MABS",
+) -> datasets.Dataset:
+    """Remove entries with high forces
+
+    Parameters
+    ==========
+    ds
+        The dataset to filter
+    keep_frac
+        The fraction of dataset entries to keep
+    metric
+        The metric to use to filter forces
+    """
+    assert keep_frac <= 1.0
+
+    if metric == "RMS":
+        forces = tensor([tensor.square().mean().sqrt() for tensor in ds["forces"]])
+    elif metric == "MABS":
+        forces = tensor([tensor.absolute().max() for tensor in ds["forces"]])
+    else:
+        assert_never(metric)
+
+    assert forces.shape == (len(ds),), f"expected {(len(ds),)} got {forces.shape}"
+
+    fig = plt.figure()
+    ax = fig.subplots()
+    ax.hist(forces, log=True, bins="fd")
+    percentiles = [keep_frac * 100, 90, 95, 99]
+    for percentile_force, percentile, linestyle in zip(
+        np.percentile(forces.numpy(), percentiles),
+        percentiles,
+        ["-", "--", "-.", ":"],
+    ):
+        ax.axvline(
+            percentile_force,
+            label=f"{percentile}th percentile",
+            color="black",
+            linestyle=linestyle,
+        )
+    ax.set_xlabel(f"{metric} Force (kcal/mol/angstrom)")
+    ax.set_ylabel("Frequency")
+    ax.legend()
+    fig.savefig(Path(__file__).with_suffix(".py.forces.png"))
+
+    indices = forces.argsort()[: round(keep_frac * len(forces))]
+    logger.info(
+        f"Keeping {len(indices)}/{len(ds)} entries ({len(indices) / len(ds) * 100}%).",
+    )
+    logger.info(f"Largest retained {metric} force: {forces[indices[-1]]} kcal/mol/Å")
+
+    print(indices, indices.sort())
+    return ds.select(indices)
 
 
 def train_test_split(
     ds: datasets.Dataset,
     frac_test: float,
 ) -> tuple[datasets.Dataset, datasets.Dataset]:
+    """Split ds into train and test subsets with diverse molecules in train
+
+    Returns
+    =======
+    (train_ds, test_ds)
+        train and test datasets
+    """
     assert 0.0 < frac_test < 1.0
 
     n_smiles = len(ds["smiles"])
@@ -238,6 +371,7 @@ def choose_diverse_molecules(
     smiles: Sequence[str],
     seed: int | None = None,
 ) -> Sequence[int]:
+    """Choose n diverse molecules from a sequence of SMILES"""
     fingerprinter = rdFingerprintGenerator.GetMorganGenerator(radius=3)
     fingerprints = [
         fingerprinter.GetFingerprint(Chem.MolFromSmiles(s))
@@ -255,6 +389,12 @@ def choose_diverse_molecules(
         n,
         seed=-1 if seed is None else seed,
     )
+
+
+def unpickle(path: Path) -> Any:
+    """Unpickle the file at path"""
+    with open(path, "rb") as f:
+        return pickle.load(f)
 
 
 if __name__ == "__main__":

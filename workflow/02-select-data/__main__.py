@@ -2,6 +2,13 @@
 """
 Filter, split, and convert the 4mers and SPICE2 datasets into Descent datasets.
 
+This script filters out SPICE2 entries with large forces to account for errors
+in dataset curation. It deviates from prior work by default by filtering out
+molecules with the top 2.5% of MABS forces, instead of 5% of RMS forces. MABS
+forces are used to avoid masking of single atoms with high forces by neighbours
+with small/typical forces, and because it provides better separation of entries
+in the generated histogram.
+
 Output files:
     datasets/spice2/test
         Descent/huggingface test dataset for SPICE2
@@ -371,7 +378,13 @@ def choose_diverse_molecules(
     smiles: Sequence[str],
     seed: int | None = None,
 ) -> Sequence[int]:
-    """Choose n diverse molecules from a sequence of SMILES"""
+    """Choose n diverse molecules from a sequence of SMILES
+
+    Returns
+    =======
+    indices
+        The indices into the original SMILES sequence of the chosen molecules.
+    """
     fingerprinter = rdFingerprintGenerator.GetMorganGenerator(radius=3)
     fingerprints = [
         fingerprinter.GetFingerprint(Chem.MolFromSmiles(s))

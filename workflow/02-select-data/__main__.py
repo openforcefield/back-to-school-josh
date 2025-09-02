@@ -5,11 +5,11 @@ Filter, split, and convert the 4mers and SPICE2 datasets into Descent datasets.
 Output files:
     datasets/spice2/test
         Descent/huggingface test dataset for SPICE2
-    datasets/spice2/test
+    datasets/spice2/train
         Descent/huggingface train dataset for SPICE2
     datasets/tetramers/test
         Descent/huggingface test dataset for 4-mers
-    datasets/tetramers/test
+    datasets/tetramers/train
         Descent/huggingface train dataset for 4-mers
     __main__.py.forces.png
         Histogram of max absolute forces and filtered cutoffs
@@ -351,10 +351,10 @@ def train_test_split(
     n_smiles = len(ds["smiles"])
     n_test = round(frac_test * n_smiles)
 
-    train_indices = choose_diverse_molecules(n_test, ds["smiles"])
-    train_indices_set = train_indices
-    assert len(train_indices) == len(train_indices_set)
-    test_indices = [i for i in range(n_smiles) if i not in train_indices_set]
+    test_indices = choose_diverse_molecules(n_test, ds["smiles"])
+    test_indices_set = test_indices
+    assert len(test_indices) == len(test_indices_set)
+    train_indices = [i for i in range(n_smiles) if i not in test_indices_set]
 
     train_ds = ds.select(indices=train_indices)
     test_ds = ds.select(indices=test_indices)

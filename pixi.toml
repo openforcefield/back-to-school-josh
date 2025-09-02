@@ -25,3 +25,8 @@ matplotlib = ">=3.10.5,<4"
 
 [pypi-dependencies]
 back-to-school-josh = { path = "packages", editable = true }
+
+[tasks.create-step]
+args = ["step_name"]
+cmd = "mkdir workflow/{{ step_name }} && cp templates/__main__.py workflow/{{ step_name }}/__main__.py"
+cwd = "."

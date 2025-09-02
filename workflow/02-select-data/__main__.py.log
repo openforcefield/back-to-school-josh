@@ -13,3 +13,49 @@
 2025-08-29 21:24:05.887 | INFO     | __main__:main:120 - Splitting tetramers dataset into train and test
 2025-08-29 21:24:06.160 | INFO     | __main__:train_test_split:354 - split dataset of 999 molecules into training set of 50 and testing set of 949
 2025-08-29 21:24:06.160 | INFO     | __main__:main:126 - Saving tetramers datasets to disk
+2025-09-02 12:05:24.421 | INFO     | __main__:load_spice:139 - Loading ['SPICE DES Monomers Single Points Dataset v1.1', 'SPICE Dipeptides Single Points Dataset v1.3', 'SPICE PubChem Set 1 Single Points Dataset v1.3', 'SPICE PubChem Set 2 Single Points Dataset v1.3', 'SPICE PubChem Set 3 Single Points Dataset v1.3', 'SPICE PubChem Set 4 Single Points Dataset v1.3', 'SPICE PubChem Set 5 Single Points Dataset v1.3', 'SPICE PubChem Set 6 Single Points Dataset v1.3', 'SPICE PubChem Set 7 Single Points Dataset v1.0', 'SPICE PubChem Set 8 Single Points Dataset v1.0', 'SPICE PubChem Set 9 Single Points Dataset v1.0', 'SPICE PubChem Set 10 Single Points Dataset v1.0'] from .data/SPICE-2.0.1.hdf5
+2025-09-02 12:05:25.321 | INFO     | __main__:load_spice:151 - Stopping after 2000 records as requested
+2025-09-02 12:05:25.333 | INFO     | __main__:load_spice:212 - Constructing dataset...
+2025-09-02 12:05:25.490 | INFO     | __main__:load_spice:216 - Dataset constructed with 261 molecules
+2025-09-02 12:05:25.812 | INFO     | __main__:filter_forces:329 - Keeping 254/261 entries (97.31800766283524%).
+2025-09-02 12:05:25.812 | INFO     | __main__:filter_forces:332 - Largest retained RMS force: 30.330766677856445 kcal/mol/Å
+2025-09-02 12:05:25.820 | INFO     | __main__:main:108 - Splitting SPICE2 dataset into train and test
+2025-09-02 12:05:25.898 | INFO     | __main__:train_test_split:362 - split dataset of 254 molecules into training set of 13 and testing set of 241
+2025-09-02 12:05:25.898 | INFO     | __main__:main:114 - Saving SPICE2 datasets to disk
+2025-09-02 12:05:25.920 | INFO     | __main__:load_qcarchive:222 - Loading records...
+2025-09-02 12:05:26.993 | INFO     | __main__:load_qcarchive:231 - Loaded 999 records
+2025-09-02 12:05:27.255 | INFO     | __main__:load_qcarchive:271 - Constructing dataset...
+2025-09-02 12:05:27.299 | INFO     | __main__:load_qcarchive:276 - Dataset constructed with 999 molecules
+2025-09-02 12:05:27.424 | INFO     | __main__:main:120 - Splitting tetramers dataset into train and test
+2025-09-02 12:05:27.705 | INFO     | __main__:train_test_split:362 - split dataset of 999 molecules into training set of 50 and testing set of 949
+2025-09-02 12:05:27.705 | INFO     | __main__:main:126 - Saving tetramers datasets to disk
+2025-09-02 12:05:48.149 | INFO     | __main__:load_spice:139 - Loading ['SPICE DES Monomers Single Points Dataset v1.1', 'SPICE Dipeptides Single Points Dataset v1.3', 'SPICE PubChem Set 1 Single Points Dataset v1.3', 'SPICE PubChem Set 2 Single Points Dataset v1.3', 'SPICE PubChem Set 3 Single Points Dataset v1.3', 'SPICE PubChem Set 4 Single Points Dataset v1.3', 'SPICE PubChem Set 5 Single Points Dataset v1.3', 'SPICE PubChem Set 6 Single Points Dataset v1.3', 'SPICE PubChem Set 7 Single Points Dataset v1.0', 'SPICE PubChem Set 8 Single Points Dataset v1.0', 'SPICE PubChem Set 9 Single Points Dataset v1.0', 'SPICE PubChem Set 10 Single Points Dataset v1.0'] from .data/SPICE-2.0.1.hdf5
+2025-09-02 12:07:12.353 | INFO     | __main__:load_spice:212 - Constructing dataset...
+2025-09-02 12:07:34.254 | INFO     | __main__:load_spice:216 - Dataset constructed with 25607 molecules
+2025-09-02 12:07:37.561 | INFO     | __main__:filter_forces:329 - Keeping 24967/25607 entries (97.50068340688092%).
+2025-09-02 12:07:37.561 | INFO     | __main__:filter_forces:332 - Largest retained RMS force: 35.70240783691406 kcal/mol/Å
+2025-09-02 12:07:37.673 | INFO     | __main__:main:108 - Splitting SPICE2 dataset into train and test
+2025-09-02 12:07:44.623 | INFO     | __main__:train_test_split:362 - split dataset of 24967 molecules into training set of 1248 and testing set of 23719
+2025-09-02 12:07:44.623 | INFO     | __main__:main:114 - Saving SPICE2 datasets to disk
+2025-09-02 12:07:45.954 | INFO     | __main__:load_qcarchive:222 - Loading records...
+2025-09-02 12:07:47.857 | INFO     | __main__:load_qcarchive:231 - Loaded 999 records
+2025-09-02 12:07:48.108 | INFO     | __main__:load_qcarchive:271 - Constructing dataset...
+2025-09-02 12:07:48.148 | INFO     | __main__:load_qcarchive:276 - Dataset constructed with 999 molecules
+2025-09-02 12:07:48.280 | INFO     | __main__:main:120 - Splitting tetramers dataset into train and test
+2025-09-02 12:07:48.561 | INFO     | __main__:train_test_split:362 - split dataset of 999 molecules into training set of 50 and testing set of 949
+2025-09-02 12:07:48.561 | INFO     | __main__:main:126 - Saving tetramers datasets to disk
+2025-09-02 12:08:22.997 | INFO     | __main__:load_spice:139 - Loading ['SPICE DES Monomers Single Points Dataset v1.1', 'SPICE Dipeptides Single Points Dataset v1.3', 'SPICE PubChem Set 1 Single Points Dataset v1.3', 'SPICE PubChem Set 2 Single Points Dataset v1.3', 'SPICE PubChem Set 3 Single Points Dataset v1.3', 'SPICE PubChem Set 4 Single Points Dataset v1.3', 'SPICE PubChem Set 5 Single Points Dataset v1.3', 'SPICE PubChem Set 6 Single Points Dataset v1.3', 'SPICE PubChem Set 7 Single Points Dataset v1.0', 'SPICE PubChem Set 8 Single Points Dataset v1.0', 'SPICE PubChem Set 9 Single Points Dataset v1.0', 'SPICE PubChem Set 10 Single Points Dataset v1.0'] from .data/SPICE-2.0.1.hdf5
+2025-09-02 12:09:19.511 | INFO     | __main__:load_spice:212 - Constructing dataset...
+2025-09-02 12:09:41.715 | INFO     | __main__:load_spice:216 - Dataset constructed with 25607 molecules
+2025-09-02 12:09:44.470 | INFO     | __main__:filter_forces:329 - Keeping 24967/25607 entries (97.50068340688092%).
+2025-09-02 12:09:44.470 | INFO     | __main__:filter_forces:332 - Largest retained MABS force: 258.6161804199219 kcal/mol/Å
+2025-09-02 12:09:44.572 | INFO     | __main__:main:108 - Splitting SPICE2 dataset into train and test
+2025-09-02 12:09:51.449 | INFO     | __main__:train_test_split:362 - split dataset of 24967 molecules into training set of 1248 and testing set of 23719
+2025-09-02 12:09:51.449 | INFO     | __main__:main:114 - Saving SPICE2 datasets to disk
+2025-09-02 12:09:52.768 | INFO     | __main__:load_qcarchive:222 - Loading records...
+2025-09-02 12:09:53.818 | INFO     | __main__:load_qcarchive:231 - Loaded 999 records
+2025-09-02 12:09:54.068 | INFO     | __main__:load_qcarchive:271 - Constructing dataset...
+2025-09-02 12:09:54.111 | INFO     | __main__:load_qcarchive:276 - Dataset constructed with 999 molecules
+2025-09-02 12:09:54.240 | INFO     | __main__:main:120 - Splitting tetramers dataset into train and test
+2025-09-02 12:09:54.519 | INFO     | __main__:train_test_split:362 - split dataset of 999 molecules into training set of 50 and testing set of 949
+2025-09-02 12:09:54.519 | INFO     | __main__:main:126 - Saving tetramers datasets to disk

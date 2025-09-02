@@ -17,10 +17,9 @@ Output files:
 
 import pickle
 import warnings
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Annotated, Any, Literal, assert_never
-from collections.abc import Iterable
 
 import datasets
 import descent.targets.energy
@@ -322,6 +321,7 @@ def filter_forces(
         )
     ax.set_xlabel(f"{metric} Force (kcal/mol/angstrom)")
     ax.set_ylabel("Frequency")
+    ax.set_xlim(xmin=forces.min().item(), xmax=forces.max().item())
     ax.legend()
     fig.savefig(Path(__file__).with_suffix(".py.forces.png"))
 

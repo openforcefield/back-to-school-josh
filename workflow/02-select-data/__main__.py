@@ -162,24 +162,24 @@ def load_spice(
             if subset not in subsets:
                 continue
 
-            conformations = (
+            conformations = Quantity(
+                np.asarray(record["conformations"]),
+                "bohr",
+            ).m_as("angstrom")
+            assert isinstance(conformations, np.ndarray), type(conformations)
+
+            dft_total_energy = (
                 Quantity(
-                    np.asarray(record["conformations"]),
+                    np.asarray(record["dft_total_energy"]),
                     "hartree",
                 )
                 * unit.avogadro_constant
             ).m_as("kcal/mol")
-            assert isinstance(conformations, np.ndarray), type(conformations)
-
-            dft_total_energy = Quantity(
-                np.asarray(record["dft_total_energy"]),
-                "bohr",
-            ).m_as("angstrom")
             assert isinstance(dft_total_energy, np.ndarray), type(dft_total_energy)
 
             dft_total_gradient = (
                 Quantity(
-                    -np.asarray(record["dft_total_gradient"]),
+                    np.asarray(record["dft_total_gradient"]),
                     "hartree/bohr",
                 )
                 * unit.avogadro_constant
@@ -206,7 +206,7 @@ def load_spice(
                     smiles=smiles,
                     coords=Tensor(conformations),
                     energy=Tensor(dft_total_energy),
-                    forces=Tensor(dft_total_gradient),
+                    forces=Tensor(-dft_total_gradient),
                 ),
             )
     logger.info("Constructing dataset...")

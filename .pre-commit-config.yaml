@@ -8,7 +8,7 @@ repos:
     hooks:
       - id: export-solved-env
         name: export-solved-env
-        entry: bash -c 'pixi r --frozen micromamba env export > solved-env.yml && git diff --exit-code solved-env.yml'
+        entry: bash -c 'pixi r --frozen micromamba env export > solved-env.yml && git diff --exit-code solved-env.yml > /dev/null'
         language: system
         files: "pixi.lock"
         pass_filenames: false
@@ -16,7 +16,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: '.*\.pdb'
+        exclude: "solved-env.yml"
       - id: end-of-file-fixer
       - id: debug-statements
   - repo: https://github.com/asottile/pyupgrade

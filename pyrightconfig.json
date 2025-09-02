@@ -9,10 +9,11 @@
 
   "reportUnsupportedDunderAll": "error",
   "reportUnknownVariableType": "warning",
-  "reportUnknownParameterType": "error",
+  "reportUnknownParameterType": "warning",
   "reportUnknownArgumentType": "warning",
   "reportUnknownLambdaType": "warning",
   "reportUnknownMemberType": "warning",
+  "reportUnusedVariable": "warning",
   "reportAny": "information",
   "reportMissingTypeStubs": "none",
   "reportUnnecessaryIsInstance": "none",

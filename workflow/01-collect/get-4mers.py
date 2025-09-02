@@ -19,6 +19,7 @@ import typer
 from loguru import logger
 from openff.qcsubmit.results import OptimizationResultCollection
 from qcportal import PortalClient
+from qcportal.client import SinglepointDriver
 from tqdm import tqdm
 
 DEFAULT_DATASETS = [
@@ -64,7 +65,10 @@ def main(
     logger.info(f"N MOLECULES: {optimization_result_collection.n_molecules}")
 
     logger.info("Downloading records")
-    records = optimization_result_collection.to_records()
+    # records = download_complete_records(optimization_result_collection)
+    records = optimization_result_collection.to_basic_result_collection(
+        list(SinglepointDriver),
+    ).to_records()
     logger.info("Done, saving")
     for record, molecule in tqdm(records):
         record_dir = data_dir / f"records/{record.id}"

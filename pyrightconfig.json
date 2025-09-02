@@ -1,0 +1,24 @@
+{
+  "venvPath": ".pixi/envs",
+  "venv": "default",
+
+  "include": ["workflow"],
+  "exclude": ["**/node_modules", "**/__pycache__"],
+  "ignore": [".pixi", "**/node_modules", "**/__pycache__", "**/.*"],
+  "typeCheckingMode": "strict",
+
+  "reportUnsupportedDunderAll": "error",
+  "reportUnknownVariableType": "warning",
+  "reportUnknownParameterType": "error",
+  "reportUnknownArgumentType": "warning",
+  "reportUnknownLambdaType": "warning",
+  "reportUnknownMemberType": "warning",
+  "reportAny": "information",
+  "reportMissingTypeStubs": "none",
+  "reportUnnecessaryIsInstance": "none",
+  "reportUnnecessaryTypeIgnoreComment": "error",
+  "reportPrivateUsage": "none",
+  "reportMissingTypeArgument": "none",
+
+  "strictGenericNarrowing": true
+}

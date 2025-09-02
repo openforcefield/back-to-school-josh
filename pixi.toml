@@ -1,0 +1,19 @@
+[project]
+name = "back-to-school-josh"
+authors = ["Josh Mitchell <josh.mitchell@openforcefield.org>"]
+channels = ["conda-forge", "openeye"]
+platforms = ["linux-64"]
+license-file = "LICENSE"
+
+[dependencies]
+python = ">=3.11,<=3.12"
+smee = ">=0.16.2,<0.17"
+descent = ">=0.5.2,<0.6"
+typer-slim = ">=0.16.1,<0.17"
+openff-toolkit = ">=0.17.0,<0.18"
+openff-interchange = ">=0.4.5,<0.5"
+rdkit = ">=2023.9.6,<2024"
+openff-qcsubmit = ">=0.56.0,<0.57"
+openeye-toolkits = ">=2025.1.1,<2026"
+loguru = ">=0.7.3,<0.8"
+tqdm = ">=4.67.1,<5"

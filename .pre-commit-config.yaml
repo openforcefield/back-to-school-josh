@@ -6,9 +6,25 @@ exclude: '^(\.tox|ci/templates|\.bumpversion\.cfg)(/|$)'
 repos:
   - repo: local
     hooks:
-      - id: export-solved-env
-        name: export-solved-env
-        entry: bash -c 'pixi r --frozen micromamba env export > solved-env.yml && git diff --exit-code solved-env.yml > /dev/null'
+      - id: export-solved-default-env
+        name: export-solved-default-env
+        entry: |-
+          bash -c '
+            pixi r --frozen micromamba env export > solved-env.yml \
+            && git add --intent-to-add solved-env.yml              \
+            && git diff --exit-code --no-patch solved-env.yml      \
+          '
+        language: system
+        files: "pixi.lock"
+        pass_filenames: false
+      - id: export-solved-qubekit-env
+        name: export-solved-qubekit-env
+        entry: |-
+          bash -c '
+            pixi r -e qubekit --frozen micromamba env export > solved-qubekit-env.yml \
+            && git add --intent-to-add solved-qubekit-env.yml                         \
+            && git diff --exit-code --no-patch solved-qubekit-env.yml                 \
+          '
         language: system
         files: "pixi.lock"
         pass_filenames: false
@@ -16,7 +32,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: "solved-env.yml"
+        exclude: "solved-(.*-)?env.yml"
       - id: end-of-file-fixer
       - id: debug-statements
   - repo: https://github.com/asottile/pyupgrade

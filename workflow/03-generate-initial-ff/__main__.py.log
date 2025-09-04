@@ -1,0 +1,256 @@
+2025-09-03 17:36:02.137 | INFO     | __main__:select_hessians:60 - Loading optimization result collection...
+2025-09-03 17:36:02.167 | INFO     | __main__:select_hessians:64 - Loaded.
+2025-09-03 17:36:02.167 | INFO     | __main__:select_hessians:66 - Filtering...
+2025-09-03 17:37:18.561 | INFO     | __main__:select_hessians:60 - Loading optimization result collection...
+2025-09-03 17:37:18.591 | INFO     | __main__:select_hessians:64 - Loaded.
+2025-09-03 17:37:18.591 | INFO     | __main__:select_hessians:66 - Filtering...
+2025-09-03 17:39:36.056 | INFO     | __main__:select_hessians:60 - Loading optimization result collection...
+2025-09-03 17:39:36.085 | INFO     | __main__:select_hessians:64 - Loaded.
+2025-09-03 17:39:36.085 | INFO     | __main__:select_hessians:67 - Filtering on energy...
+2025-09-03 17:40:12.348 | INFO     | __main__:select_hessians:70 - Filtering on hessians...
+2025-09-03 17:45:35.662 | INFO     | __main__:select_hessians:74 - Filtered.
+2025-09-03 17:45:35.663 | INFO     | __main__:get_records:84 - Downloading missing records
+2025-09-03 17:50:26.922 | INFO     | __main__:select_hessians:60 - Loading optimization result collection...
+2025-09-03 17:50:26.952 | INFO     | __main__:select_hessians:64 - Loaded.
+2025-09-03 17:50:26.952 | INFO     | __main__:select_hessians:66 - Filtering on energy...
+2025-09-03 17:51:02.270 | INFO     | __main__:select_hessians:69 - Filtering on hessians...
+2025-09-03 17:57:38.256 | INFO     | __main__:select_hessians:72 - Filtered.
+2025-09-03 17:57:38.257 | INFO     | __main__:get_records:82 - Downloading missing records
+2025-09-03 18:12:26.964 | INFO     | __main__:get_records:93 - Saving to disk
+2025-09-03 18:18:08.269 | INFO     | __main__:select_hessians:60 - Loading optimization result collection...
+2025-09-03 18:18:08.299 | INFO     | __main__:select_hessians:64 - Loaded.
+2025-09-03 18:18:08.299 | INFO     | __main__:select_hessians:66 - Filtering on energy...
+2025-09-03 18:18:41.047 | INFO     | __main__:select_hessians:69 - Filtering on hessians...
+2025-09-03 18:22:17.335 | INFO     | __main__:select_hessians:72 - Filtered.
+2025-09-03 18:22:17.336 | INFO     | __main__:get_records:82 - Downloading missing records
+2025-09-03 18:33:21.903 | INFO     | __main__:get_records:93 - Saving to disk
+2025-09-03 18:33:22.696 | INFO     | __main__:get_records:102 - Loading desired records from disk
+2025-09-03 18:33:50.622 | INFO     | __main__:select_hessians:60 - Loading optimization result collection...
+2025-09-03 18:33:50.652 | INFO     | __main__:select_hessians:64 - Loaded.
+2025-09-03 18:33:50.652 | INFO     | __main__:select_hessians:66 - Filtering on energy...
+2025-09-03 18:34:29.896 | INFO     | __main__:select_hessians:69 - Filtering on hessians...
+2025-09-03 18:39:06.750 | INFO     | __main__:select_hessians:72 - Filtered.
+2025-09-03 18:39:06.751 | INFO     | __main__:get_records:82 - Downloading missing records
+2025-09-03 18:39:07.006 | INFO     | __main__:get_records:93 - Saving to disk
+2025-09-03 18:39:07.006 | INFO     | __main__:get_records:102 - Loading desired records from disk
+2025-09-04 09:33:43.550 | INFO     | __main__:select_hessians:79 - Loading optimization result collection...
+2025-09-04 09:33:43.581 | INFO     | __main__:select_hessians:81 - Loaded.
+2025-09-04 09:33:43.581 | INFO     | __main__:select_hessians:106 - Filtering on energy...
+2025-09-04 09:34:22.931 | INFO     | __main__:select_hessians:109 - Filtering on hessians...
+2025-09-04 09:38:24.877 | INFO     | __main__:select_hessians:112 - Filtered.
+2025-09-04 09:38:24.887 | INFO     | __main__:get_records:124 - Downloading missing records
+2025-09-04 09:38:24.934 | INFO     | __main__:get_records:135 - Saving to disk
+2025-09-04 09:38:24.934 | INFO     | __main__:get_records:144 - Loading desired records from disk
+2025-09-04 09:55:11.717 | INFO     | __main__:select_hessians:79 - Loading optimization result collection...
+2025-09-04 09:55:11.747 | INFO     | __main__:select_hessians:81 - Loaded.
+2025-09-04 09:55:11.747 | INFO     | __main__:select_hessians:84 - Loading filtered result collection...
+2025-09-04 09:55:11.755 | INFO     | __main__:select_hessians:86 - Loaded.
+2025-09-04 09:55:11.755 | INFO     | __main__:select_hessians:88 - Checking loaded result collection is subset of input...
+2025-09-04 09:55:39.693 | INFO     | __main__:select_hessians:79 - Loading optimization result collection...
+2025-09-04 09:55:39.723 | INFO     | __main__:select_hessians:81 - Loaded.
+2025-09-04 09:55:39.723 | INFO     | __main__:select_hessians:84 - Loading filtered result collection...
+2025-09-04 09:55:39.732 | INFO     | __main__:select_hessians:86 - Loaded.
+2025-09-04 09:55:39.732 | INFO     | __main__:select_hessians:88 - Checking loaded result collection is subset of input...
+2025-09-04 09:57:50.375 | INFO     | __main__:select_hessians:78 - Loading filtered result collection...
+2025-09-04 09:57:50.385 | INFO     | __main__:select_hessians:80 - Loaded.
+2025-09-04 09:57:50.385 | INFO     | __main__:get_records:108 - Downloading missing records
+2025-09-04 09:57:50.430 | INFO     | __main__:get_records:119 - Saving to disk
+2025-09-04 09:57:50.430 | INFO     | __main__:get_records:128 - Loading desired records from disk
+2025-09-04 09:58:48.794 | INFO     | __main__:select_hessians:78 - Loading filtered result collection...
+2025-09-04 09:58:48.794 | WARNING  | __main__:select_hessians:79 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 09:58:48.804 | INFO     | __main__:select_hessians:84 - Loaded.
+2025-09-04 09:58:48.804 | INFO     | __main__:get_records:112 - Downloading missing records
+2025-09-04 09:58:48.851 | INFO     | __main__:get_records:123 - Saving to disk
+2025-09-04 09:58:48.851 | INFO     | __main__:get_records:132 - Loading desired records from disk
+2025-09-04 15:11:02.511 | INFO     | __main__:select_hessians:92 - Loading filtered result collection...
+2025-09-04 15:11:02.520 | INFO     | __main__:select_hessians:94 - Loaded.
+2025-09-04 15:11:02.520 | WARNING  | __main__:select_hessians:95 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:11:02.520 | INFO     | __main__:get_records:126 - Finding missing records
+2025-09-04 15:11:02.599 | INFO     | __main__:get_records:135 - Downloading 0 missing records
+2025-09-04 15:11:02.599 | INFO     | __main__:get_records:141 - Saving to disk
+2025-09-04 15:11:02.600 | INFO     | __main__:get_records:150 - Loading desired records from disk
+2025-09-04 15:13:28.376 | INFO     | __main__:select_hessians:92 - Loading filtered result collection...
+2025-09-04 15:13:28.417 | INFO     | __main__:select_hessians:94 - Loaded.
+2025-09-04 15:13:28.417 | WARNING  | __main__:select_hessians:95 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:13:28.418 | INFO     | __main__:get_records:126 - Finding missing records
+2025-09-04 15:13:28.463 | INFO     | __main__:get_records:135 - Downloading 0 missing records
+2025-09-04 15:13:28.464 | INFO     | __main__:get_records:141 - Saving to disk
+2025-09-04 15:13:28.464 | INFO     | __main__:get_records:150 - Loading desired records from disk
+2025-09-04 15:13:53.105 | INFO     | __main__:select_hessians:92 - Loading filtered result collection...
+2025-09-04 15:13:53.146 | INFO     | __main__:select_hessians:94 - Loaded.
+2025-09-04 15:13:53.146 | WARNING  | __main__:select_hessians:95 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:13:53.146 | INFO     | __main__:get_records:126 - Finding missing records
+2025-09-04 15:13:53.193 | INFO     | __main__:get_records:135 - Downloading 0 missing records
+2025-09-04 15:13:53.193 | INFO     | __main__:get_records:141 - Saving to disk
+2025-09-04 15:13:53.193 | INFO     | __main__:get_records:150 - Loading desired records from disk
+2025-09-04 15:14:05.791 | INFO     | __main__:select_hessians:92 - Loading filtered result collection...
+2025-09-04 15:14:05.834 | INFO     | __main__:select_hessians:94 - Loaded.
+2025-09-04 15:14:05.834 | WARNING  | __main__:select_hessians:95 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:14:05.834 | INFO     | __main__:get_records:126 - Finding missing records
+2025-09-04 15:14:05.880 | INFO     | __main__:get_records:135 - Downloading 0 missing records
+2025-09-04 15:14:05.880 | INFO     | __main__:get_records:141 - Saving to disk
+2025-09-04 15:14:05.880 | INFO     | __main__:get_records:150 - Loading desired records from disk
+2025-09-04 15:14:30.725 | INFO     | __main__:select_hessians:92 - Loading filtered result collection...
+2025-09-04 15:14:30.766 | INFO     | __main__:select_hessians:94 - Loaded.
+2025-09-04 15:14:30.767 | WARNING  | __main__:select_hessians:95 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:14:30.767 | INFO     | __main__:get_records:126 - Finding missing records
+2025-09-04 15:14:30.813 | INFO     | __main__:get_records:135 - Downloading 0 missing records
+2025-09-04 15:14:30.813 | INFO     | __main__:get_records:141 - Saving to disk
+2025-09-04 15:14:30.813 | INFO     | __main__:get_records:150 - Loading desired records from disk
+2025-09-04 15:15:34.275 | INFO     | __main__:select_hessians:92 - Loading filtered result collection...
+2025-09-04 15:15:34.318 | INFO     | __main__:select_hessians:94 - Loaded.
+2025-09-04 15:15:34.318 | WARNING  | __main__:select_hessians:95 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:15:34.318 | INFO     | __main__:get_records:126 - Finding missing records
+2025-09-04 15:15:34.364 | INFO     | __main__:get_records:135 - Downloading 0 missing records
+2025-09-04 15:15:34.364 | INFO     | __main__:get_records:141 - Saving to disk
+2025-09-04 15:15:34.364 | INFO     | __main__:get_records:150 - Loading desired records from disk
+2025-09-04 15:16:00.353 | INFO     | __main__:select_hessians:92 - Loading filtered result collection...
+2025-09-04 15:16:00.394 | INFO     | __main__:select_hessians:94 - Loaded.
+2025-09-04 15:16:00.394 | WARNING  | __main__:select_hessians:95 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:16:00.394 | INFO     | __main__:get_records:126 - Finding missing records
+2025-09-04 15:16:00.440 | INFO     | __main__:get_records:135 - Downloading 0 missing records
+2025-09-04 15:16:00.440 | INFO     | __main__:get_records:141 - Saving to disk
+2025-09-04 15:16:00.441 | INFO     | __main__:get_records:150 - Loading desired records from disk
+2025-09-04 15:25:41.690 | INFO     | __main__:select_hessians:94 - Loading filtered result collection...
+2025-09-04 15:25:41.731 | INFO     | __main__:select_hessians:96 - Loaded.
+2025-09-04 15:25:41.731 | WARNING  | __main__:select_hessians:97 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:25:41.731 | INFO     | __main__:get_records:128 - Finding missing records
+2025-09-04 15:25:41.779 | INFO     | __main__:get_records:137 - Downloading 0 missing records
+2025-09-04 15:25:41.779 | INFO     | __main__:get_records:143 - Saving to disk
+2025-09-04 15:25:41.779 | INFO     | __main__:get_records:152 - Loading desired records from disk
+2025-09-04 15:26:06.483 | INFO     | __main__:select_hessians:94 - Loading filtered result collection...
+2025-09-04 15:26:06.529 | INFO     | __main__:select_hessians:96 - Loaded.
+2025-09-04 15:26:06.529 | WARNING  | __main__:select_hessians:97 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:26:06.529 | INFO     | __main__:get_records:128 - Finding missing records
+2025-09-04 15:26:06.576 | INFO     | __main__:get_records:137 - Downloading 0 missing records
+2025-09-04 15:26:06.576 | INFO     | __main__:get_records:143 - Saving to disk
+2025-09-04 15:26:06.576 | INFO     | __main__:get_records:152 - Loading desired records from disk
+2025-09-04 15:26:23.520 | INFO     | __main__:select_hessians:94 - Loading filtered result collection...
+2025-09-04 15:26:23.562 | INFO     | __main__:select_hessians:96 - Loaded.
+2025-09-04 15:26:23.562 | WARNING  | __main__:select_hessians:97 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:26:23.562 | INFO     | __main__:get_records:128 - Finding missing records
+2025-09-04 15:26:23.610 | INFO     | __main__:get_records:137 - Downloading 0 missing records
+2025-09-04 15:26:23.610 | INFO     | __main__:get_records:143 - Saving to disk
+2025-09-04 15:26:23.610 | INFO     | __main__:get_records:152 - Loading desired records from disk
+2025-09-04 15:27:01.545 | INFO     | __main__:select_hessians:94 - Loading filtered result collection...
+2025-09-04 15:27:01.585 | INFO     | __main__:select_hessians:96 - Loaded.
+2025-09-04 15:27:01.585 | WARNING  | __main__:select_hessians:97 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:27:01.585 | INFO     | __main__:get_records:128 - Finding missing records
+2025-09-04 15:27:01.631 | INFO     | __main__:get_records:137 - Downloading 0 missing records
+2025-09-04 15:27:01.631 | INFO     | __main__:get_records:143 - Saving to disk
+2025-09-04 15:27:01.631 | INFO     | __main__:get_records:152 - Loading desired records from disk
+2025-09-04 15:34:42.682 | INFO     | __main__:select_hessians:94 - Loading filtered result collection...
+2025-09-04 15:34:42.725 | INFO     | __main__:select_hessians:96 - Loaded.
+2025-09-04 15:34:42.725 | WARNING  | __main__:select_hessians:97 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:34:42.725 | INFO     | __main__:get_records:128 - Finding missing records
+2025-09-04 15:34:42.772 | INFO     | __main__:get_records:137 - Downloading 0 missing records
+2025-09-04 15:34:42.772 | INFO     | __main__:get_records:143 - Saving to disk
+2025-09-04 15:34:42.772 | INFO     | __main__:get_records:152 - Loading desired records from disk
+2025-09-04 15:57:07.576 | INFO     | __main__:select_hessians:94 - Loading filtered result collection...
+2025-09-04 15:57:07.616 | INFO     | __main__:select_hessians:96 - Loaded.
+2025-09-04 15:57:07.616 | WARNING  | __main__:select_hessians:97 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 15:57:07.616 | INFO     | __main__:get_records:128 - Finding missing records
+2025-09-04 15:57:07.679 | INFO     | __main__:get_records:142 - Downloading 1609 missing records
+2025-09-04 16:08:44.246 | INFO     | __main__:get_records:148 - Saving to disk
+2025-09-04 16:08:47.367 | INFO     | __main__:get_records:160 - Loading desired records from disk
+2025-09-04 16:28:53.898 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 16:28:53.937 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 16:28:53.937 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 16:28:53.937 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 16:28:53.995 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 16:28:53.995 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 16:28:53.995 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 16:29:18.749 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 16:29:18.791 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 16:29:18.791 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 16:29:18.791 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 16:29:18.850 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 16:29:18.850 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 16:29:18.850 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 16:29:59.334 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 16:29:59.374 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 16:29:59.374 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 16:29:59.374 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 16:29:59.431 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 16:29:59.431 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 16:29:59.431 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 16:31:23.164 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 16:31:23.203 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 16:31:23.203 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 16:31:23.203 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 16:31:23.261 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 16:31:23.261 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 16:31:23.261 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 16:31:54.107 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 16:31:54.147 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 16:31:54.147 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 16:31:54.147 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 16:31:54.208 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 16:31:54.208 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 16:31:54.208 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 16:34:28.933 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 16:34:28.974 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 16:34:28.974 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 16:34:28.974 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 16:34:29.031 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 16:34:29.032 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 16:34:29.032 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 16:34:49.352 | WARNING  | __main__:compute_aam_dataframe:223 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-04 16:34:53.670 | WARNING  | __main__:compute_aam_dataframe:223 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-04 16:37:45.479 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 16:37:45.518 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 16:37:45.518 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 16:37:45.518 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 16:37:45.575 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 16:37:45.575 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 16:37:45.575 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 16:38:05.904 | WARNING  | __main__:compute_aam_dataframe:223 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-04 16:38:10.210 | WARNING  | __main__:compute_aam_dataframe:223 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-04 16:43:49.634 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 16:43:49.673 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 16:43:49.673 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 16:43:49.673 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 16:43:49.731 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 16:43:49.731 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 16:43:49.731 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 16:44:10.125 | WARNING  | __main__:compute_aam_dataframe:223 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-04 16:44:14.421 | WARNING  | __main__:compute_aam_dataframe:223 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-04 17:10:35.498 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 17:10:35.538 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 17:10:35.538 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 17:10:35.539 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 17:10:35.596 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 17:10:35.596 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 17:10:35.596 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 17:10:56.188 | WARNING  | __main__:compute_aam_dataframe:223 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-04 17:11:00.602 | WARNING  | __main__:compute_aam_dataframe:223 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-04 17:13:54.464 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 17:13:54.504 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 17:13:54.504 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 17:13:54.504 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 17:13:54.562 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 17:13:54.562 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 17:13:54.562 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 17:14:14.867 | WARNING  | __main__:compute_aam_dataframe:223 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-04 17:14:19.139 | WARNING  | __main__:compute_aam_dataframe:223 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-04 17:17:14.987 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 17:17:15.026 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 17:17:15.026 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 17:17:15.027 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 17:17:15.085 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 17:17:15.085 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 17:17:15.085 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 17:17:35.592 | WARNING  | __main__:compute_aam_dataframe:223 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-04 17:17:39.919 | WARNING  | __main__:compute_aam_dataframe:223 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-04 17:23:07.639 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-04 17:23:07.678 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-04 17:23:07.678 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-04 17:23:07.678 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-04 17:23:07.737 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-04 17:23:07.737 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-04 17:23:07.737 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-04 17:23:28.183 | WARNING  | __main__:compute_aam_dataframe:223 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-04 17:23:32.510 | WARNING  | __main__:compute_aam_dataframe:223 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-04 17:24:56.256 | INFO     | __main__:initialize_force_field:287 - Skipping equilibrium value update of linear angle (AAM angle: 3.1076664208495828 radian)
+2025-09-04 17:24:56.256 | INFO     | __main__:initialize_force_field:287 - Skipping equilibrium value update of linear angle (AAM angle: 3.0722079578768113 radian)
+2025-09-04 17:24:56.372 | INFO     | __main__:initialize_force_field:287 - Skipping equilibrium value update of linear angle (AAM angle: 3.0653272075132887 radian)

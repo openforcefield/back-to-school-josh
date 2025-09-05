@@ -38,6 +38,7 @@ tqdm = ">=4.67.1,<5"
 numpy = ">=1.26.4,<2"
 pandas = ">=2.1.4,<3"
 setuptools = "<80"
+cyclopts = ">=3.23.1,<4"
 
 [feature.qubekit.pypi-dependencies]
 back-to-school-josh = { path = "packages", editable = true }

@@ -254,3 +254,24 @@
 2025-09-04 17:24:56.256 | INFO     | __main__:initialize_force_field:287 - Skipping equilibrium value update of linear angle (AAM angle: 3.1076664208495828 radian)
 2025-09-04 17:24:56.256 | INFO     | __main__:initialize_force_field:287 - Skipping equilibrium value update of linear angle (AAM angle: 3.0722079578768113 radian)
 2025-09-04 17:24:56.372 | INFO     | __main__:initialize_force_field:287 - Skipping equilibrium value update of linear angle (AAM angle: 3.0653272075132887 radian)
+2025-09-05 13:34:39.256 | INFO     | __main__:select_hessians:95 - Loading filtered result collection...
+2025-09-05 13:34:39.303 | INFO     | __main__:select_hessians:97 - Loaded.
+2025-09-05 13:34:39.303 | WARNING  | __main__:select_hessians:98 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-05 13:34:39.303 | INFO     | __main__:get_records:129 - Finding missing records
+2025-09-05 13:34:39.406 | INFO     | __main__:get_records:143 - Downloading 0 missing records
+2025-09-05 13:34:39.406 | INFO     | __main__:get_records:149 - Saving to disk
+2025-09-05 13:34:39.406 | INFO     | __main__:get_records:161 - Loading desired records from disk
+2025-09-05 13:35:01.635 | WARNING  | __main__:compute_aam_dataframe:223 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-05 13:35:05.960 | WARNING  | __main__:compute_aam_dataframe:223 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-05 14:30:53.595 | INFO     | __main__:select_hessians:94 - Loading filtered result collection...
+2025-09-05 14:30:53.605 | INFO     | __main__:select_hessians:96 - Loaded.
+2025-09-05 14:30:53.605 | WARNING  | __main__:select_hessians:97 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-05 14:30:53.605 | INFO     | __main__:get_records:128 - Finding missing records
+2025-09-05 14:30:53.659 | INFO     | __main__:get_records:142 - Downloading 0 missing records
+2025-09-05 14:30:53.659 | INFO     | __main__:get_records:148 - Saving to disk
+2025-09-05 14:30:53.659 | INFO     | __main__:get_records:160 - Loading desired records from disk
+2025-09-05 14:31:13.968 | WARNING  | __main__:compute_aam_dataframe:221 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-05 14:31:18.257 | WARNING  | __main__:compute_aam_dataframe:221 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-05 14:32:42.035 | INFO     | __main__:initialize_force_field:292 - Skipping equilibrium value update of linear angle (AAM angle: 3.1076664208495828 radian)
+2025-09-05 14:32:42.036 | INFO     | __main__:initialize_force_field:292 - Skipping equilibrium value update of linear angle (AAM angle: 3.0722079578768113 radian)
+2025-09-05 14:32:42.149 | INFO     | __main__:initialize_force_field:292 - Skipping equilibrium value update of linear angle (AAM angle: 3.0653272075132887 radian)

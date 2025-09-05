@@ -44,11 +44,14 @@ dependencies:
   - cuda-nvrtc=12.9.86=h5888daf_0
   - cuda-version=12.9=h4f385c5_3
   - cycler=0.12.1=pyhd8ed1ab_1
+  - cyclopts=3.23.1=pyhcf101f3_0
   - cyrus-sasl=2.1.28=hd9c7081_0
   - debugpy=1.8.16=py312h8285ef7_1
   - decorator=5.2.1=pyhd8ed1ab_0
   - defusedxml=0.7.1=pyhd8ed1ab_0
   - dftd4=3.7.0=hd37a5e2_4
+  - docstring_parser=0.17.0=pyhd8ed1ab_0
+  - docutils=0.22=pyhd8ed1ab_0
   - exceptiongroup=1.3.0=pyhd8ed1ab_0
   - executing=2.2.1=pyhd8ed1ab_0
   - fftw=3.3.10=nompi_hf1063bd_110
@@ -164,12 +167,14 @@ dependencies:
   - loguru=0.7.3=pyh707e725_0
   - lxml=6.0.1=py312h70dad80_1
   - lz4-c=1.10.0=h5888daf_1
+  - markdown-it-py=4.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.2=py312h178313f_1
   - matplotlib-base=3.10.6=py312he3d6523_1
   - matplotlib-inline=0.1.7=pyhd8ed1ab_1
   - mctc-lib=0.4.2=h3b12eaf_0
   - mda-xdrlib=0.2.0=pyhd8ed1ab_1
   - mdtraj=1.11.0=np2py312h8baca0b_2
+  - mdurl=0.1.2=pyhd8ed1ab_1
   - mistune=3.1.4=pyhcf101f3_0
   - mkl=2024.2.2=ha770c72_17
   - msgpack-python=1.1.1=py312hd9148b4_1
@@ -260,6 +265,8 @@ dependencies:
   - rfc3339-validator=0.1.4=pyhd8ed1ab_1
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
   - rfc3987-syntax=1.1.0=pyhe01879c_1
+  - rich=14.1.0=pyhe01879c_0
+  - rich-rst=1.3.1=pyhd8ed1ab_1
   - rlpycairo=0.4.0=pyh6c17108_0
   - rpds-py=0.27.1=py312h868fb18_1
   - scipy=1.16.1=py312h7a1785b_1

@@ -1,6 +1,7 @@
 {
   "venvPath": ".pixi/envs",
-  "venv": "default",
+  // "venv": "default",
+  "venv": "qubekit",
 
   "include": ["workflow"],
   "exclude": ["**/node_modules", "**/__pycache__"],

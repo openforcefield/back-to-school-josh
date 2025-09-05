@@ -5,21 +5,22 @@ TODO: Write me!
 This script relies on sage-2.2.1-optimizations.json, which is available at:
 https://raw.githubusercontent.com/openforcefield/sage-2.2.1/refs/heads/main/02_curate-data/output/optimization-training-set.json
 
-Output files:
-    file1
-        Description of file1
-    file2
-        Description of file2
+**Output files:**
+
+file1
+    Description of file1
+
+file2
+    Description of file2
 """
 
 import pickle
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import Annotated, Literal, TypedDict, assert_never
-from collections.abc import Callable, Iterator
+from typing import Literal, TypedDict, assert_never
 
+import cyclopts
 import numpy
-import typer
 from loguru import logger
 from openff.qcsubmit.results.results import (
     BasicResultCollection,
@@ -27,8 +28,9 @@ from openff.qcsubmit.results.results import (
 )
 from openff.toolkit import ForceField, Molecule
 from openff.toolkit.typing.engines.smirnoff.parameters import ValenceDict
-from openff.units import Quantity, unit
+from openff.units import unit
 from pandas import DataFrame
+from pint.facets.plain import PlainQuantity
 from qcportal.client import SinglepointDriver, SinglepointRecord
 from qubekit.bonded.mod_seminario import ModSeminario
 from qubekit.forcefield import HarmonicBondParameter
@@ -37,46 +39,44 @@ from qubekit.molecules import Ligand
 from tqdm import tqdm
 
 from back_to_school_josh.qcsubmit import CustomResultFilter
-from back_to_school_josh.utils import flatten, unwrap
+from back_to_school_josh.utils import flatten, sibpath, unwrap
 
 
 def main(
-    input_collection_path: Annotated[
-        Path,
-        typer.Option(
-            help="Path to JSON-serialized optimization collection to be filtered",
-        ),
-    ] = Path(__file__).parent / "sage-2.2.1-optimizations.json",
-    output_collection_path: Annotated[
-        Path,
-        typer.Option(
-            help=(
-                "Path to filtered JSON-serialized singlepoint collection."
-                + " Note that if this file exists, it will be loaded in lieu of"
-                + " filtering the input file as an optimization"
-            ),
-        ),
-    ] = Path(__file__).parent / "aam-singlepoint-hessians.json",
-    records_path: Annotated[
-        Path,
-        typer.Option(help="Path to downloaded QCArchive records"),
-    ] = Path(__file__).parent / "records",
-    ff_template_path: Annotated[
-        str,
-        typer.Option(help="Force field to generate parameter values for"),
-    ] = "openff_unconstrained-2.2.1.offxml",
-    output: Annotated[
-        Path,
-        typer.Option(help="Path to generated force field"),
-    ] = Path(__file__).parent / "aam-ff.offxml",
+    *,
+    input_collection_path: Path = sibpath("sage-2.2.1-optimizations.json"),
+    output_collection_path: Path = sibpath("aam-singlepoint-hessians.json"),
+    records_path: Path = sibpath("records"),
+    ff_template_str: str = "openff_unconstrained-2.2.1.offxml",
+    output: Path = sibpath("aam-ff.offxml"),
 ):
+    """
+    Compute an initial force field from a QCSubmit collection via MSM/AAM.
+
+    Parameters
+    ----------
+    input_collection_path
+        Path to JSON-serialized optimization collection to be filtered.
+    output_collection_path
+        Path to filtered JSON-serialized singlepoint collection. Note that if
+        this file exists, it will be loaded in lieu of filtering the input file
+        as an optimization.
+    records_path
+        Path to downloaded QCArchive records.
+    ff_template_str
+        Force field to generate angle and bond parameter values for. This can be
+        a path relative to the working directory to an OFFXML file, the name of
+        a published OFFXML file, or the contents of an OFFXML file.
+    output
+        Path to generated force field
+    """
     collection = select_hessians(input_collection_path, output_collection_path)
 
     records_and_molecules = get_records(collection, records_path)
 
     aam_dataset = compute_aam_dataframe(records_and_molecules)
 
-    ff_template = get_parameter_smirks(ff_template_path)
+    ff_template = get_parameter_smirks(ff_template_str)
 
     force_field = initialize_force_field(aam_dataset, ff_template)
 
@@ -190,7 +190,7 @@ def compute_aam_dataframe(
     Compute equilibrium values and force constants with the Alice Allen Method.
 
     Returns
-    =======
+    -------
     aam_df
         A dataframe with one row per bond or angle in each record and the
         following columns:
@@ -204,8 +204,7 @@ def compute_aam_dataframe(
          - ``"k"``: The force constant of the bond or angle
 
     Notes
-    =====
-
+    -----
     The Alice Allen Method is also known as the Modified Seminario Method (MSM),
     but is here called AAM because calling a technique that has become
     synonymous with initial parameter generation after a non-author of that
@@ -235,7 +234,7 @@ def compute_aam_dataframe(
 def initialize_force_field(
     aam_dataset: DataFrame,
     ff_template: ForceField,
-    aggregator: Callable[[Sequence[float]], float] = numpy.mean,
+    aggregator: Callable[[numpy.ndarray], float] = numpy.mean,
 ) -> ForceField:
     # Add the force field parameter ID corresponding to each harmonic to the dataframe
     labels: dict[str, dict[str, ValenceDict]] = {
@@ -261,7 +260,7 @@ def initialize_force_field(
         )
     ]
 
-    force_field = ForceField(ff_template)
+    force_field = ForceField(ff_template.to_string())
 
     # Aggregate and update the force field parameters!
     for parameter_type, parameter_type_df in aam_dataset.groupby("parameter_type"):
@@ -274,10 +273,16 @@ def initialize_force_field(
         ):
             assert isinstance(parameter_id, str), parameter_id
             parameter = unwrap(handler.get_parameter({"id": parameter_id}))
-            k = unit.Quantity.from_sequence(numpy.asarray(parameter_df["k"]))
-            k_agg = aggregator(k)
-            eq = unit.Quantity.from_sequence(numpy.asarray(parameter_df["eq"]))
-            eq_agg = aggregator(eq)
+            k_agg = aggregator(
+                unit.Quantity.from_sequence(
+                    numpy.asarray(parameter_df["k"]),  # type: ignore
+                ),
+            )
+            eq_agg = aggregator(
+                unit.Quantity.from_sequence(
+                    numpy.asarray(parameter_df["eq"]),  # type: ignore
+                ),
+            )
 
             if parameter_type == "Bonds":
                 parameter.length = eq_agg
@@ -329,8 +334,8 @@ def extract_qubemol_parameters(
                 "id": qube_mol.provenance["qcarchive_record_id"],
                 "parameter_type": "Bonds",
                 "indices": indices,
-                "eq": Quantity(bond_parameter.length, "nm"),
-                "k": Quantity(bond_parameter.k, "kJ/mol/nm**2"),
+                "eq": unit.Quantity(bond_parameter.length, "nm"),
+                "k": unit.Quantity(bond_parameter.k, "kJ/mol/nm**2"),
             },
         )
 
@@ -346,14 +351,12 @@ def extract_qubemol_parameters(
             indices = (c, b, a)
 
         yield AamAngleEntry(
-            {
-                "mapped_smiles": qube_mol.provenance["mapped_smiles"],
-                "id": qube_mol.provenance["qcarchive_record_id"],
-                "parameter_type": "Angles",
-                "indices": indices,
-                "eq": Quantity(angle_parameter.angle, "rad"),
-                "k": Quantity(angle_parameter.k, "kJ/mol/rad**2"),
-            },
+            mapped_smiles=qube_mol.provenance["mapped_smiles"],
+            id=qube_mol.provenance["qcarchive_record_id"],
+            parameter_type="Angles",
+            indices=indices,
+            eq=unit.Quantity(angle_parameter.angle, "rad"),
+            k=unit.Quantity(angle_parameter.k, "kJ/mol/rad**2"),
         )
 
 
@@ -376,8 +379,8 @@ def to_qubemol(offmol: Molecule, record: SinglepointRecord) -> Ligand:
 class AamEntry(TypedDict):
     mapped_smiles: str
     id: int
-    eq: Quantity
-    k: Quantity
+    eq: PlainQuantity[float]
+    k: PlainQuantity[float]
 
 
 class AamBondEntry(AamEntry):
@@ -392,10 +395,15 @@ class AamAngleEntry(AamEntry):
 
 if __name__ == "__main__":
     logger.add(Path(__file__).with_suffix(".py.log"), delay=True)
-    app = typer.Typer(
-        add_completion=False,
-        rich_markup_mode="rich",
-        pretty_exceptions_enable=False,
+
+    app = cyclopts.App(
+        name=(
+            Path(__file__).parent.stem
+            if Path(__file__).name == "__main__.py"
+            else Path(__file__).stem
+        ),
+        help=__doc__,
+        help_format="restructuredtext",
     )
-    app.command(help=__doc__)(main)
+    app.default()(main)
     app()

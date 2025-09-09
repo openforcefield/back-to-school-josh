@@ -1,17 +1,58 @@
 #!/usr/bin/env python3
 """
-TODO: Write me!
+Initialize a force field for fitting.
+
+Takes a template force field, re-initializes angles and bonds via AAM on the
+subset of the Sage optimizations that include Hessians, adds additional
+torsion parameters from a JSON file, and finally resets all proper torsions
+(including the new ones) to a sum of 4 cosines with force constants of zero.
 
 This script relies on sage-2.2.1-optimizations.json, which is available at:
 https://raw.githubusercontent.com/openforcefield/sage-2.2.1/refs/heads/main/02_curate-data/output/optimization-training-set.json
 
+**Input files:**
+
+sage-2.2.1-optimizations.json
+    The collection of QCArchive Optimization records from which Hessians are
+    selected for AAM initialization.
+
+specific_torsions.jsonc
+    JSON5 file including an array of objects with ``"label"`` and ``"smirks"``
+    keys specifying proper torsions to add to the template force field.
+
+openff_unconstrained-2.2.1.offxml
+    Template force field. Can be collected automatically from openff-forcefields
+    package, so does not need to be present in the folder. Saved to
+    `intermediates/template.offxml` as a record.
+
 **Output files:**
 
-file1
-    Description of file1
+__main__.py.log
+    Text log of processing.
 
-file2
-    Description of file2
+intermediates/aam-singlepoint-hessians.json
+    The collection of QCArchive Singlepoint records with Hessians used for AAM
+    initialization.
+
+intermediates/template.offxml
+
+records/<record_id>/molecule.sdf
+    SDFs of QCArchive records used for AAM initialization.
+
+records/<record_id>/record.pickle
+    Pickled QCArchive records used for AAM initialization.
+
+aam-reset-specific.offxml
+    The initialized force field.
+
+
+
+**Notes: **
+The Alice Allen Method is also known as the Modified Seminario Method (MSM),
+but is here called AAM because calling a technique that has become
+synonymous with initial parameter generation after a non-author of that
+technique that gives the technique an initialism with another much more
+widely used interpretation (Markov State Models) is frankly ridiculous.
 """
 
 import pickle
@@ -20,6 +61,7 @@ from pathlib import Path
 from typing import Literal, TypedDict, assert_never
 
 import cyclopts
+import json5
 import numpy
 from loguru import logger
 from openff.qcsubmit.results.results import (
@@ -27,6 +69,7 @@ from openff.qcsubmit.results.results import (
     OptimizationResultCollection,
 )
 from openff.toolkit import ForceField, Molecule
+from openff.toolkit.typing.engines.smirnoff import ProperTorsionHandler
 from openff.toolkit.typing.engines.smirnoff.parameters import ValenceDict
 from openff.units import unit
 from pandas import DataFrame
@@ -45,9 +88,13 @@ from back_to_school_josh.utils import flatten, sibpath, unwrap
 def main(
     *,
     input_collection_path: Path = sibpath("sage-2.2.1-optimizations.json"),
-    output_collection_path: Path = sibpath("aam-singlepoint-hessians.json"),
+    output_collection_path: Path = sibpath(
+        "intermediates/aam-singlepoint-hessians.json",
+    ),
     records_path: Path = sibpath("records"),
     ff_template_str: str = "openff_unconstrained-2.2.1.offxml",
+    specific_torsions_path: Path = sibpath("specific_torsions.jsonc"),
+    reset_torsion_periodicity: int = 4,
     output: Path = sibpath("aam-ff.offxml"),
 ):
     """
@@ -67,20 +114,32 @@ def main(
         Force field to generate angle and bond parameter values for. This can be
         a path relative to the working directory to an OFFXML file, the name of
         a published OFFXML file, or the contents of an OFFXML file.
+    specific_torsions_path
+        Path to JSON file specifying the torsions to add to the force field.
+        JSON should encode an array of objects with the keys ``"label"`` and
+        ``"smirks"``, each being a string specifying the parameter ID and SMIRKS
+        pattern respectively.
+    reset_torsion_periodicity
+        The periodicity to reset torsions to.
     output
         Path to generated force field
     """
+    logger.info("---------------------- starting script ----------------------")
     collection = select_hessians(input_collection_path, output_collection_path)
 
     records_and_molecules = get_records(collection, records_path)
 
     aam_dataset = compute_aam_dataframe(records_and_molecules)
 
-    ff_template = get_parameter_smirks(ff_template_str)
+    ff_template = get_template_force_field(ff_template_str)
 
-    force_field = initialize_force_field(aam_dataset, ff_template)
+    force_field = initialize_bonds_and_angles(aam_dataset, ff_template)
 
-    force_field = split_params_after_aam(force_field)
+    force_field = reset_and_split_torsions(
+        force_field,
+        specific_torsions_path,
+        reset_torsion_periodicity,
+    )
 
     write_smirnoff(force_field, output)
 
@@ -117,6 +176,7 @@ def select_hessians(
 
     logger.info("Filtered.")
 
+    collection_path_out.parent.mkdir(exist_ok=True, parents=True)
     collection_path_out.write_text(filtered.json())
 
     return filtered
@@ -161,7 +221,10 @@ def get_records(
     # Load all records in the collection from disk (they should all be there now!)
     logger.info("Loading desired records from disk")
     records_and_molecules: list[tuple[SinglepointRecord, Molecule]] = []
-    for result in tqdm(flatten(collection.entries.values()), desc="loading from disk"):
+    for result in tqdm(
+        list(flatten(collection.entries.values())),
+        desc="loading from disk",
+    ):
         record_path = records_path / f"{result.record_id}/record.pickle"
         molecule_path = records_path / f"{result.record_id}/molecule.sdf"
 
@@ -174,12 +237,17 @@ def get_records(
     return records_and_molecules
 
 
-def get_parameter_smirks(ff_name: str) -> ForceField:
+def get_template_force_field(ff_name: str) -> ForceField:
     """
     Get a force field that has the SMIRKS parameters we want to fill in with AAM
     """
+    logger.info(f"Loading {ff_name}")
     ff = ForceField(ff_name, allow_cosmetic_attributes=True)
-    ff.to_file(str(Path(__file__).parent / "template.offxml"))
+
+    template_output_path = Path(__file__).parent / "intermediates/template.offxml"
+    template_output_path.parent.mkdir(exist_ok=True, parents=True)
+    ff.to_file(str(template_output_path))
+    logger.info(f"Loaded and saved to {template_output_path}'")
     return ff
 
 
@@ -202,15 +270,10 @@ def compute_aam_dataframe(
          CMILES that correspond to this bond or angle
          - ``"eq"``: The equilibrium value of the bond or angle
          - ``"k"``: The force constant of the bond or angle
-
-    Notes
-    -----
-    The Alice Allen Method is also known as the Modified Seminario Method (MSM),
-    but is here called AAM because calling a technique that has become
-    synonymous with initial parameter generation after a non-author of that
-    technique that gives the technique an initialism with another much more
-    widely used interpretation (Markov State Models) is frankly ridiculous.
     """
+    logger.info(
+        "Computing initial bond and angle parameters via AAM (AKA MSM, see docstring)",
+    )
     aam = ModSeminario(vibrational_scaling=1.0)
 
     entries: list[AamBondEntry | AamAngleEntry] = []
@@ -227,16 +290,18 @@ def compute_aam_dataframe(
             continue
         qube_mol = aam.run(qube_mol)
         entries.extend(extract_qubemol_parameters(qube_mol))
+    logger.info("Initial bond and angle parameters calculated")
 
     return DataFrame(entries)
 
 
-def initialize_force_field(
+def initialize_bonds_and_angles(
     aam_dataset: DataFrame,
     ff_template: ForceField,
     aggregator: Callable[[numpy.ndarray], float] = numpy.mean,
 ) -> ForceField:
     # Add the force field parameter ID corresponding to each harmonic to the dataframe
+    logger.info("Labelling initial bond and angle parameters with force field IDs")
     labels: dict[str, dict[str, ValenceDict]] = {
         mapped_smiles: unwrap(
             ff_template.label_molecules(
@@ -263,6 +328,7 @@ def initialize_force_field(
     force_field = ForceField(ff_template.to_string())
 
     # Aggregate and update the force field parameters!
+    logger.info("Initializing bond and angle force field parameters from AAM")
     for parameter_type, parameter_type_df in aam_dataset.groupby("parameter_type"):
         assert parameter_type in ("Bonds", "Angles"), parameter_type
         handler = force_field.get_parameter_handler(parameter_type)
@@ -292,7 +358,8 @@ def initialize_force_field(
                 # Only update the parameter if it isn't linear
                 if parameter.angle.m_as(unit.degree) == 180.0:
                     logger.info(
-                        f"Skipping equilibrium value update of linear angle (AAM angle: {eq_agg})",
+                        "Skipping equilibrium value update of linear angle"
+                        + f" (AAM angle: {eq_agg.m_as('deg')} deg)",  # type: ignore
                     )
                     parameter.angle = eq_agg
             else:
@@ -301,17 +368,65 @@ def initialize_force_field(
     return force_field
 
 
-def split_params_after_aam(force_field: ForceField) -> ForceField:
+def reset_and_split_torsions(
+    reference_force_field: ForceField,
+    specific_torsions_json: Path,
+    torsion_periodicity: int = 4,
+) -> ForceField:
     """
     Add parameter splits that should re-use AAM parameters.
     """
-    raise NotImplementedError()
+    force_field = ForceField(reference_force_field.to_string())
+
+    reference_torsion_handler = reference_force_field["ProperTorsions"]
+
+    torsion_handler = ProperTorsionHandler(version="0.4")
+    force_field.deregister_parameter_handler(force_field["ProperTorsions"])
+    force_field.register_parameter_handler(torsion_handler)
+
+    logger.info("Resetting reference torsions")
+    for reference_torsion in reference_torsion_handler.parameters:
+        new_parameter: dict[str, str | int | PlainQuantity[float] | float] = {
+            "id": reference_torsion.id,
+            "smirks": reference_torsion.smirks,
+        }
+        for i in range(torsion_periodicity):
+            new_parameter[f"periodicity{i + 1}"] = i
+            new_parameter[f"k{i + 1}"] = 0.0 * unit.kilocalories_per_mole
+            new_parameter[f"phase{i + 1}"] = i % 2 * 180.0 * unit.degree
+            new_parameter[f"idivf{i + 1}"] = 1.0
+
+        torsion_handler.add_parameter(new_parameter)
+
+    specific_torsion_types = json5.loads(
+        specific_torsions_json.read_text(),
+    )
+    assert isinstance(specific_torsion_types, list)
+
+    logger.info("Adding additional torsions")
+    for torsion_type in specific_torsion_types:
+        assert isinstance(torsion_type, dict)
+        new_parameter: dict[str, str | int | PlainQuantity[float] | float] = {
+            "id": torsion_type["label"],
+            "smirks": torsion_type["smirks"],
+        }
+        for i in range(torsion_periodicity):
+            new_parameter[f"periodicity{i + 1}"] = i
+            new_parameter[f"k{i + 1}"] = 0.0 * unit.kilocalories_per_mole
+            new_parameter[f"phase{i + 1}"] = i % 2 * 180.0 * unit.degree
+            new_parameter[f"idivf{i + 1}"] = 1.0
+
+        torsion_handler.add_parameter(new_parameter)
+
+    return force_field
 
 
 def write_smirnoff(ff: ForceField, filename: str | Path):
     """
     Write force field to disk.
     """
+    logger.info(f"Writing initialized force field to {filename}")
+    Path(filename).parent.mkdir(exist_ok=True, parents=True)
     ff.to_file(str(filename))
 
 

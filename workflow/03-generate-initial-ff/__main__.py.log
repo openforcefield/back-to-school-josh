@@ -22,3 +22,25 @@
 2025-09-09 14:57:31.114 | INFO     | __main__:reset_and_split_torsions:387 - Resetting reference torsions
 2025-09-09 14:57:31.210 | INFO     | __main__:reset_and_split_torsions:406 - Adding additional torsions
 2025-09-09 14:57:31.222 | INFO     | __main__:write_smirnoff:428 - Writing initialized force field to workflow/03-generate-initial-ff/aam-ff.offxml
+2025-09-09 15:25:23.315 | INFO     | __main__:main:127 - ---------------------- starting script ----------------------
+2025-09-09 15:25:23.315 | INFO     | __main__:select_hessians:155 - Loading filtered result collection...
+2025-09-09 15:25:23.325 | INFO     | __main__:select_hessians:157 - Loaded.
+2025-09-09 15:25:23.325 | WARNING  | __main__:select_hessians:158 - Filtered result collection loaded from cache without checking it agrees with input result collection!
+2025-09-09 15:25:23.325 | INFO     | __main__:get_records:190 - Finding missing records
+2025-09-09 15:25:23.371 | INFO     | __main__:get_records:204 - Downloading 0 missing records
+2025-09-09 15:25:23.371 | INFO     | __main__:get_records:210 - Saving to disk
+2025-09-09 15:25:23.371 | INFO     | __main__:get_records:222 - Loading desired records from disk
+2025-09-09 15:25:27.551 | INFO     | __main__:compute_aam_dataframe:274 - Computing initial bond and angle parameters via AAM (AKA MSM, see docstring)
+2025-09-09 15:25:44.109 | WARNING  | __main__:compute_aam_dataframe:286 - Cc1cc(C)c(C#N)c(N2CC[C@@]3(CCCN(CC4CC4)C3=O)C2)n1 (record 18856744) has no hessians! Skipping...
+2025-09-09 15:25:48.884 | WARNING  | __main__:compute_aam_dataframe:286 - CC(=O)N1CC(=O)N(c2cnn(C)c2)C[C@]12CCN(S(C)(=O)=O)C2 (record 18855783) has no hessians! Skipping...
+2025-09-09 15:26:44.149 | INFO     | __main__:compute_aam_dataframe:293 - Initial bond and angle parameters calculated
+2025-09-09 15:26:44.271 | INFO     | __main__:get_template_force_field:244 - Loading openff_unconstrained-2.2.1.offxml
+2025-09-09 15:26:44.472 | INFO     | __main__:get_template_force_field:250 - Loaded and saved to /home/joshmitchell/Documents/openff/back-to-school-josh/workflow/03-generate-initial-ff/intermediates/template.offxml'
+2025-09-09 15:26:44.472 | INFO     | __main__:initialize_bonds_and_angles:304 - Labelling initial bond and angle parameters with force field IDs
+2025-09-09 15:27:13.839 | INFO     | __main__:initialize_bonds_and_angles:331 - Initializing bond and angle force field parameters from AAM
+2025-09-09 15:27:14.308 | INFO     | __main__:initialize_bonds_and_angles:360 - Skipping equilibrium value update of linear angle (AAM angle: 178.0561700492074 deg)
+2025-09-09 15:27:14.309 | INFO     | __main__:initialize_bonds_and_angles:360 - Skipping equilibrium value update of linear angle (AAM angle: 176.02454977284668 deg)
+2025-09-09 15:27:14.421 | INFO     | __main__:initialize_bonds_and_angles:360 - Skipping equilibrium value update of linear angle (AAM angle: 175.63031181713373 deg)
+2025-09-09 15:27:15.162 | INFO     | __main__:reset_and_split_torsions:387 - Resetting reference torsions
+2025-09-09 15:27:15.260 | INFO     | __main__:reset_and_split_torsions:406 - Adding additional torsions
+2025-09-09 15:27:15.272 | INFO     | __main__:write_smirnoff:428 - Writing initialized force field to workflow/03-generate-initial-ff/aam-ff.offxml

@@ -211,3 +211,5 @@ __marimo__/
 .data/
 !pyrightconfig.json
 !*.py.log
+Modified_Seminario_Angles.txt
+Modified_Seminario_Bonds.txt

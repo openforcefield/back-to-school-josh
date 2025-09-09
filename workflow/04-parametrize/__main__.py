@@ -40,7 +40,7 @@ from back_to_school_josh.utils import sibpath
 
 def main(
     *,
-    output_tensor_ff_path: Path = sibpath("tensor_ff"),
+    output_tensor_ff_path: Path = sibpath("tensor_ff.pt"),
     output_tensor_tops_path: Path = sibpath("tensor_tops"),
     dataset_paths: Mapping[str, Path] = {
         "spice2": sibpath("../02-select-data/datasets/spice2/train"),
@@ -63,9 +63,9 @@ def main(
     Parameters
     ----------
     output_tensor_ff_path
-        Path to write Smee tensor force field to.
+        Path of file to write Smee tensor force field to.
     output_tensor_tops_path
-        Path to write Smee tensor topologies to.
+        Path of directory to write Smee tensor topologies to.
     dataset_paths
         Paths to serialized Huggingface datasets to parametrize.
     force_field_paths
@@ -86,9 +86,9 @@ def main(
     # all topologies index into identical force fields.
     shared_tensor_ff = None
 
-    for _, path in dataset_paths.items():
+    for ds_name, ds_path in dataset_paths.items():
         tensor_force_field, tensor_topologies = parametrize_dataset(
-            path,
+            ds_path,
             force_field,
             charge_model=charge_model,
             n_processes=n_processes,
@@ -99,10 +99,21 @@ def main(
         if shared_tensor_ff is None:
             shared_tensor_ff = tensor_force_field
             write_tensor_ff_to_disk(output_tensor_ff_path, shared_tensor_ff)
-        else:
-            assert tensor_force_field == shared_tensor_ff
+        elif tensor_force_field != shared_tensor_ff:
+            logger.warning(
+                "Force field for dataset {ds_name} differs from shared force field",
+            )
 
-        write_tensor_tops_to_disk(output_tensor_tops_path, tensor_topologies)
+        # Additionally write each tensor FF to the corresponding dataset
+        # topology path so we don't lose our work if the tensor force fields
+        # differ
+        write_tensor_ff_to_disk(
+            output_tensor_tops_path / ds_name / "tensor_ff.pt",
+            tensor_force_field,
+        )
+
+        # Finally, write the tensor topologies to disk
+        write_tensor_tops_to_disk(output_tensor_tops_path, tensor_topologies, ds_name)
 
 
 def parametrize_dataset(
@@ -227,10 +238,25 @@ def write_tensor_ff_to_disk(
 def write_tensor_tops_to_disk(
     output_tensor_tops_path: Path,
     tensor_topologies: Mapping[str, TensorTopology],
+    dataset_name: str,
 ):
-    output_tensor_tops_path.parent.mkdir(exist_ok=True, parents=True)
-    for smiles, ttop in tensor_topologies.items():
-        torch.save(ttop, output_tensor_tops_path / smiles)
+    dataset_tops_path = output_tensor_tops_path / dataset_name
+    dataset_tops_path.mkdir(exist_ok=True, parents=True)
+
+    # Save the whole dictionary
+    torch.save(
+        tensor_topologies,
+        dataset_tops_path / "smiles_to_topologies.pt",
+    )
+
+    # Also save the topologies individually - can figure out which format I
+    # prefer later
+    for i, (smiles, ttop) in enumerate(tensor_topologies.items()):
+        this_dir = dataset_tops_path / f"{i:0>8}"
+        this_dir.mkdir(exist_ok=True, parents=True)
+
+        torch.save(ttop, this_dir / "tensor_top.pt")
+        Path(this_dir, "smiles.txt").write_text(f"{smiles}\n")
 
 
 if __name__ == "__main__":

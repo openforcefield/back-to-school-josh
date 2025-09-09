@@ -24,7 +24,16 @@ from pathlib import Path
 from loguru import logger
 
 
-def main():
+def main(*, flag: bool = True):
+    """
+    TODO: write me!
+
+    Parameters
+    ----------
+    flag
+        Help text for flag
+    """
+
     pass
 
 

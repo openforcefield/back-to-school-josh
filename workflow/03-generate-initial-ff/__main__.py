@@ -391,7 +391,7 @@ def reset_and_split_torsions(
             "smirks": reference_torsion.smirks,
         }
         for i in range(torsion_periodicity):
-            new_parameter[f"periodicity{i + 1}"] = i
+            new_parameter[f"periodicity{i + 1}"] = i + 1
             new_parameter[f"k{i + 1}"] = 0.0 * unit.kilocalories_per_mole
             new_parameter[f"phase{i + 1}"] = i % 2 * 180.0 * unit.degree
             new_parameter[f"idivf{i + 1}"] = 1.0
@@ -411,7 +411,7 @@ def reset_and_split_torsions(
             "smirks": torsion_type["smirks"],
         }
         for i in range(torsion_periodicity):
-            new_parameter[f"periodicity{i + 1}"] = i
+            new_parameter[f"periodicity{i + 1}"] = i + 1
             new_parameter[f"k{i + 1}"] = 0.0 * unit.kilocalories_per_mole
             new_parameter[f"phase{i + 1}"] = i % 2 * 180.0 * unit.degree
             new_parameter[f"idivf{i + 1}"] = 1.0

@@ -52,3 +52,9 @@ def sibpath(path: str | Path) -> Path:
         Path(script_path).parent.resolve() / path,
         Path(".").resolve(),
     )
+
+
+def filter_none(iterable: Iterable[T | None]) -> Iterator[T]:
+    for elem in iterable:
+        if elem is not None:
+            yield elem

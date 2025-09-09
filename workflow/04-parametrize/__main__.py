@@ -19,6 +19,8 @@ File 2
     File 2 description
 """
 
+import functools
+import multiprocessing
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Literal
@@ -53,6 +55,7 @@ def main(
         "nagl",
         "default_ff_charges",
     ] = "nagl",
+    n_processes: int | None = None,
 ):
     """
     Parametrize train sets into Smee/Descent tensor force field
@@ -73,7 +76,10 @@ def main(
         ``"nagl"``: NAGL ``openff-gnn-am1bcc-0.1.0-rc.3.pt``; ``"openeye"``:
         OpenEye AM1BCC-ELF10; ``"default_ff_charges"``: Charges as specified in
         force field.
+    n_processes
+        Number of processes to use to parametrize systems.
     """
+    logger.info("---------------------- starting script ----------------------")
     force_field = ForceField(*force_field_paths)
 
     # We will write the tensor force field to disk only once, and check that
@@ -85,6 +91,7 @@ def main(
             path,
             force_field,
             charge_model=charge_model,
+            n_processes=n_processes,
         )
 
         # Save this FF if it's the first one, otherwise check that its identical
@@ -103,18 +110,37 @@ def parametrize_dataset(
     force_field: ForceField,
     *,
     charge_model: Literal["ambertools", "openeye", "nagl", "default_ff_charges"],
+    n_processes: int | None = None,
 ) -> tuple[TensorForceField, dict[str, TensorTopology]]:
     logger.info(f"Loading dataset at {path}...")
     dataset = datasets.Dataset.load_from_disk(str(path))
+    all_smiles: list[str] = dataset["smiles"]
+
     logger.info("Loaded.")
 
-    logger.info(f"Constructing interchanges with {force_field}...")
-    # TODO: Batching and multiprocessing!
-    interchanges = [
-        smiles_to_interchange(smiles, force_field, charge_model=charge_model)
-        for smiles in tqdm(dataset["smiles"], desc="Parametrizing")
-    ]
+    logger.info("Constructing interchanges...")
+    # TODO: Batching
+    with multiprocessing.get_context("fork").Pool(processes=n_processes) as pool:
+        maybe_interchanges = list(
+            pool.imap(
+                functools.partial(
+                    smiles_to_interchange,
+                    force_field=force_field,
+                    charge_model=charge_model,
+                ),
+                tqdm(all_smiles, desc="Parametrizing"),
+                chunksize=1,
+            ),
+        )
     logger.info("Interchanges constructed.")
+
+    interchanges: list[Interchange] = []
+    filtered_smiles: list[str] = []
+    for maybe_interchange, smiles in zip(maybe_interchanges, all_smiles, strict=True):
+        if maybe_interchange is None:
+            continue
+        interchanges.append(maybe_interchange)
+        filtered_smiles.append(smiles)
 
     logger.info("Converting to tensor format...")
     tensor_force_field, tensor_topologies = smee.converters.convert_interchange(
@@ -125,7 +151,7 @@ def parametrize_dataset(
     tensor_topology_dict = {
         smiles: tensor_topology
         for smiles, tensor_topology in zip(
-            dataset["smiles"],
+            filtered_smiles,
             tensor_topologies,
             strict=True,
         )
@@ -144,7 +170,7 @@ def smiles_to_interchange(
         "openeye",
         "nagl",
     ] = "nagl",
-) -> Interchange:
+) -> Interchange | None:
     molecule = Molecule.from_mapped_smiles(smiles, allow_undefined_stereo=True)
 
     # Assign partial charges with requested charge model
@@ -170,10 +196,16 @@ def smiles_to_interchange(
         case "nagl":
             from openff.toolkit import NAGLToolkitWrapper
 
-            molecule.assign_partial_charges(
-                partial_charge_method="openff-gnn-am1bcc-0.1.0-rc.3.pt",
-                toolkit_registry=NAGLToolkitWrapper(),
-            )
+            try:
+                molecule.assign_partial_charges(
+                    partial_charge_method="openff-gnn-am1bcc-0.1.0-rc.3.pt",
+                    toolkit_registry=NAGLToolkitWrapper(),
+                )
+            except ValueError as e:
+                logger.warning(
+                    f"{smiles} encountered ValueError during parametrization, skipping: {e}",
+                )
+                return None
             charge_from_molecules = [molecule]
 
     # Construct interchange
@@ -202,7 +234,7 @@ def write_tensor_tops_to_disk(
 
 
 if __name__ == "__main__":
-    logger.add(Path(__file__).with_suffix(".py.log"), delay=True)
+    logger.add(Path(__file__).with_suffix(".py.log"), delay=True, enqueue=True)
 
     app = cyclopts.App(
         name=(

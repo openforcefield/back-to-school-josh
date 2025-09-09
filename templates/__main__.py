@@ -33,6 +33,7 @@ def main(*, flag: bool = True):
     flag
         Help text for flag
     """
+    logger.info("---------------------- starting script ----------------------")
 
     pass
 

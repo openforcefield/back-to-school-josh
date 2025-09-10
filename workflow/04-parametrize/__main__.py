@@ -41,10 +41,12 @@ from back_to_school_josh.utils import sibpath
 def main(
     *,
     output_tensor_ff_path: Path = sibpath("tensor_ff.pt"),
-    output_tensor_tops_path: Path = sibpath("tensor_tops"),
-    dataset_paths: Mapping[str, Path] = {
-        "spice2": sibpath("../02-select-data/datasets/spice2/train"),
-        "tetramers": sibpath("../02-select-data/datasets/tetramers/train"),
+    output_tensor_tops_path: Path = sibpath("outputs"),
+    dataset_paths: dict[str, Path] = {
+        "spice2_train": sibpath("../02-select-data/datasets/spice2/train"),
+        "spice2_test": sibpath("../02-select-data/datasets/spice2/test"),
+        "tetramers_train": sibpath("../02-select-data/datasets/tetramers/train"),
+        "tetramers_test": sibpath("../02-select-data/datasets/tetramers/test"),
     },
     force_field_paths: Sequence[Path] = (
         sibpath("../03-generate-initial-ff/aam-ff.offxml"),
@@ -82,38 +84,28 @@ def main(
     logger.info("---------------------- starting script ----------------------")
     force_field = ForceField(*force_field_paths)
 
-    # We will write the tensor force field to disk only once, and check that
-    # all topologies index into identical force fields.
-    shared_tensor_ff = None
-
-    for ds_name, ds_path in dataset_paths.items():
-        tensor_force_field, tensor_topologies = parametrize_dataset(
-            ds_path,
-            force_field,
-            charge_model=charge_model,
-            n_processes=n_processes,
+    smiles_to_interchange_map: dict[str, Interchange] = {}
+    for _, ds_path in dataset_paths.items():
+        smiles_to_interchange_map.update(
+            parametrize_dataset(
+                ds_path,
+                force_field,
+                charge_model=charge_model,
+                n_processes=n_processes,
+            ),
         )
 
-        # Save this FF if it's the first one, otherwise check that its identical
-        # to the saved one
-        if shared_tensor_ff is None:
-            shared_tensor_ff = tensor_force_field
-            write_tensor_ff_to_disk(output_tensor_ff_path, shared_tensor_ff)
-        elif tensor_force_field != shared_tensor_ff:
-            logger.warning(
-                "Force field for dataset {ds_name} differs from shared force field",
-            )
+    tensor_force_field, tensor_topologies = interchanges_to_smee(
+        smiles_to_interchange_map,
+    )
 
-        # Additionally write each tensor FF to the corresponding dataset
-        # topology path so we don't lose our work if the tensor force fields
-        # differ
-        write_tensor_ff_to_disk(
-            output_tensor_tops_path / ds_name / "tensor_ff.pt",
-            tensor_force_field,
-        )
+    write_tensor_ff_to_disk(
+        output_tensor_ff_path,
+        tensor_force_field,
+    )
 
-        # Finally, write the tensor topologies to disk
-        write_tensor_tops_to_disk(output_tensor_tops_path, tensor_topologies, ds_name)
+    # Finally, write the tensor topologies to disk
+    write_tensor_tops_to_disk(output_tensor_tops_path, tensor_topologies)
 
 
 def parametrize_dataset(
@@ -122,7 +114,7 @@ def parametrize_dataset(
     *,
     charge_model: Literal["ambertools", "openeye", "nagl", "default_ff_charges"],
     n_processes: int | None = None,
-) -> tuple[TensorForceField, dict[str, TensorTopology]]:
+) -> dict[str, Interchange]:
     logger.info(f"Loading dataset at {path}...")
     dataset = datasets.Dataset.load_from_disk(str(path))
     all_smiles: list[str] = dataset["smiles"]
@@ -145,24 +137,26 @@ def parametrize_dataset(
         )
     logger.info("Interchanges constructed.")
 
-    interchanges: list[Interchange] = []
-    filtered_smiles: list[str] = []
-    for maybe_interchange, smiles in zip(maybe_interchanges, all_smiles, strict=True):
-        if maybe_interchange is None:
-            continue
-        interchanges.append(maybe_interchange)
-        filtered_smiles.append(smiles)
+    return {
+        smiles: interchange
+        for smiles, interchange in zip(all_smiles, maybe_interchanges)
+        if interchange is not None
+    }
 
+
+def interchanges_to_smee(
+    smiles_to_interchange: Mapping[str, Interchange],
+) -> tuple[TensorForceField, dict[str, TensorTopology]]:
     logger.info("Converting to tensor format...")
     tensor_force_field, tensor_topologies = smee.converters.convert_interchange(
-        interchanges,
+        list(smiles_to_interchange.values()),
     )
     logger.info("Converted.")
 
     tensor_topology_dict = {
         smiles: tensor_topology
         for smiles, tensor_topology in zip(
-            filtered_smiles,
+            smiles_to_interchange.keys(),
             tensor_topologies,
             strict=True,
         )
@@ -238,25 +232,14 @@ def write_tensor_ff_to_disk(
 def write_tensor_tops_to_disk(
     output_tensor_tops_path: Path,
     tensor_topologies: Mapping[str, TensorTopology],
-    dataset_name: str,
 ):
-    dataset_tops_path = output_tensor_tops_path / dataset_name
-    dataset_tops_path.mkdir(exist_ok=True, parents=True)
+    output_tensor_tops_path.mkdir(exist_ok=True, parents=True)
 
     # Save the whole dictionary
     torch.save(
         tensor_topologies,
-        dataset_tops_path / "smiles_to_topologies.pt",
+        output_tensor_tops_path / "smiles_to_topologies.pt",
     )
-
-    # Also save the topologies individually - can figure out which format I
-    # prefer later
-    for i, (smiles, ttop) in enumerate(tensor_topologies.items()):
-        this_dir = dataset_tops_path / f"{i:0>8}"
-        this_dir.mkdir(exist_ok=True, parents=True)
-
-        torch.save(ttop, this_dir / "tensor_top.pt")
-        Path(this_dir, "smiles.txt").write_text(f"{smiles}\n")
 
 
 if __name__ == "__main__":

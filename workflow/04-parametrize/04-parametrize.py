@@ -30,7 +30,7 @@ import cyclopts
 import datasets
 import smee.converters
 import torch
-from loguru import logger
+from loguru import Logger, logger
 from openff.interchange import Interchange
 from openff.toolkit import ForceField, Molecule
 from smee import TensorForceField, TensorTopology
@@ -156,7 +156,11 @@ def parametrize_dataset(
     # get_context("fork") causes memory spike on subsequent calls as memory of
     # previous calls is duplicated. get_context("forkserver") avoids this, but
     # breaks when file is called __main__.py
-    with multiprocessing.get_context("forkserver").Pool(processes=n_processes) as pool:
+    with multiprocessing.get_context("forkserver").Pool(
+        processes=n_processes,
+        initializer=set_logger,
+        initargs=(logger,),
+    ) as pool:
         maybe_interchanges = list(
             pool.imap(
                 functools.partial(
@@ -305,6 +309,22 @@ def write_tensor_tops_to_disk(
         tensor_topologies,
         output_tensor_tops_path,
     )
+
+
+def set_logger(logger_: Logger):
+    """
+    Helper function to sync logger across process pool with forkserver.
+
+    Example
+    -------
+    with multiprocessing.get_context("forkserver").Pool(
+        initializer=worker.set_logger,
+        initargs=(logger, )
+    ) as pool:
+        pool.imap(...)
+    """
+    global logger
+    logger = logger_
 
 
 if __name__ == "__main__":

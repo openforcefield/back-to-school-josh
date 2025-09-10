@@ -45,11 +45,14 @@ def sibpath(path: str | Path) -> Path:
     the path unmodified. In other words, interpret it as a path relative to the
     working directory instead of relative to the parent directory of the script.
     """
-    script_path = sys.modules["__main__"].__file__
-    if script_path is None:
+
+    script_main = sys.modules["__main__"]
+
+    if not hasattr(script_main, "__file__") or script_main.__file__ is None:
         return Path(path)
+
     return Path.relative_to(
-        Path(script_path).parent.resolve() / path,
+        Path(script_main.__file__).parent.resolve() / path,
         Path(".").resolve(),
     )
 

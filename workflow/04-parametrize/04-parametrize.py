@@ -24,6 +24,7 @@ import multiprocessing
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Literal
+import sys
 
 import cyclopts
 import datasets
@@ -122,8 +123,8 @@ def parametrize_dataset(
     logger.info("Loaded.")
 
     logger.info("Constructing interchanges...")
-    # TODO: Batching
-    with multiprocessing.get_context("fork").Pool(processes=n_processes) as pool:
+
+    with multiprocessing.get_context("forkserver").Pool(processes=n_processes) as pool:
         maybe_interchanges = list(
             pool.imap(
                 functools.partial(
@@ -255,4 +256,5 @@ if __name__ == "__main__":
         help_format="restructuredtext",
     )
     app.default()(main)
-    app()
+    with logger.catch(onerror=lambda _: sys.exit(1)):
+        app()

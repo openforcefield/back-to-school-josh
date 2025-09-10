@@ -39,9 +39,10 @@ def main(*, flag: bool = True):
 
 
 if __name__ == "__main__":
+    import sys
     import cyclopts
 
-    logger.add(Path(__file__).with_suffix(".py.log"), delay=True)
+    logger.add(Path(__file__).with_suffix(".py.log"), delay=True, enqueue=True)
 
     app = cyclopts.App(
         name=(
@@ -53,4 +54,5 @@ if __name__ == "__main__":
         help_format="restructuredtext",
     )
     app.default()(main)
-    app()
+    with logger.catch(onerror=lambda _: sys.exit(1)):
+        app()

@@ -1,30 +1,30 @@
 #!/usr/bin/env python3
 """
-TODO: Write me!
+Parametrize all molecules in all datasets with the given force field and charge model.
 
-**Input files:**
-
-File 1
-    File 1 description
-
-File 2
-    File 2 description
 
 **Output files:**
 
-File 1
-    File 1 description
 
-File 2
-    File 2 description
+outputs/tensor_ff.pt
+    Pickled Smee tensor force field indexed into by all topologies. Load with
+    ``pytorch.load(path, weights_only=False)``.
+
+outputs/smiles_to_topologies.pt
+    Pickled dictionary from mapped SMILES strings used in datasets to the
+    corresponding Smee tensor topology. All topologies index into the output
+    tensorforce field. Load with ``pytorch.load(path, weights_only=False)``.
+
+04-parametrize.py.log
+    Text log of all operations.
 """
 
 import functools
 import multiprocessing
+import sys
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Literal
-import sys
 
 import cyclopts
 import datasets
@@ -41,8 +41,8 @@ from back_to_school_josh.utils import sibpath
 
 def main(
     *,
-    output_tensor_ff_path: Path = sibpath("tensor_ff.pt"),
-    output_tensor_tops_path: Path = sibpath("outputs"),
+    output_tensor_ff_path: Path = sibpath("outputs/tensor_ff.pt"),
+    output_tensor_tops_path: Path = sibpath("outputs/smiles_to_topologies.pt"),
     dataset_paths: dict[str, Path] = {
         "spice2_train": sibpath("../02-select-data/datasets/spice2/train"),
         "spice2_test": sibpath("../02-select-data/datasets/spice2/test"),
@@ -80,7 +80,8 @@ def main(
         OpenEye AM1BCC-ELF10; ``"default_ff_charges"``: Charges as specified in
         force field.
     n_processes
-        Number of processes to use to parametrize systems.
+        Number of parallel processes to use to parametrize systems. If ``None``
+        or not specified, use all available cores.
     """
     logger.info("---------------------- starting script ----------------------")
     force_field = ForceField(*force_field_paths)
@@ -116,6 +117,34 @@ def parametrize_dataset(
     charge_model: Literal["ambertools", "openeye", "nagl", "default_ff_charges"],
     n_processes: int | None = None,
 ) -> dict[str, Interchange]:
+    """
+    Parametrize all molecules in the dataset by applying ``force_field``.
+
+    Parameters
+    ----------
+    path
+        Path to a Huggingface dataset directory with a ``"smiles"`` column
+        containing mapped SMILES strings. The molecules represented by these
+        SMILES strings will be parametrized.
+    force_field
+        A SMIRNOFF Force Field object. Used to parametrize the molecules at
+        ``path``.
+    charge_model
+        Charge model to parametrize with. ``"ambertools"``: AmberTools AM1BCC;
+        ``"nagl"``: NAGL ``openff-gnn-am1bcc-0.1.0-rc.3.pt``; ``"openeye"``:
+        OpenEye AM1BCC-ELF10; ``"default_ff_charges"``: Charges as specified in
+        force field.
+    n_processes
+        Number of parallel processes to use to parametrize systems. If ``None``
+        or not specified, use all available cores.
+
+    Returns
+    -------
+    smiles_to_interchange_map
+        Dictionary mapping from mapped SMILES strings to the corresponding
+        ``Interchange``.
+
+    """
     logger.info(f"Loading dataset at {path}...")
     dataset = datasets.Dataset.load_from_disk(str(path))
     all_smiles: list[str] = dataset["smiles"]
@@ -124,6 +153,9 @@ def parametrize_dataset(
 
     logger.info("Constructing interchanges...")
 
+    # get_context("fork") causes memory spike on subsequent calls as memory of
+    # previous calls is duplicated. get_context("forkserver") avoids this, but
+    # breaks when file is called __main__.py
     with multiprocessing.get_context("forkserver").Pool(processes=n_processes) as pool:
         maybe_interchanges = list(
             pool.imap(
@@ -145,27 +177,6 @@ def parametrize_dataset(
     }
 
 
-def interchanges_to_smee(
-    smiles_to_interchange: Mapping[str, Interchange],
-) -> tuple[TensorForceField, dict[str, TensorTopology]]:
-    logger.info("Converting to tensor format...")
-    tensor_force_field, tensor_topologies = smee.converters.convert_interchange(
-        list(smiles_to_interchange.values()),
-    )
-    logger.info("Converted.")
-
-    tensor_topology_dict = {
-        smiles: tensor_topology
-        for smiles, tensor_topology in zip(
-            smiles_to_interchange.keys(),
-            tensor_topologies,
-            strict=True,
-        )
-    }
-
-    return tensor_force_field, tensor_topology_dict
-
-
 def smiles_to_interchange(
     smiles: str,
     force_field: ForceField,
@@ -177,6 +188,33 @@ def smiles_to_interchange(
         "nagl",
     ] = "nagl",
 ) -> Interchange | None:
+    """
+    Parametrize the molecule described by a SMILES string with SMIRNOFF.
+
+    Supports specifying the charge model to use. If the ``"nagl"`` charge model
+    is used, and an exception is raised during charge assignment, a warning
+    is issued and ``None`` is returned as filtering out `None` objects is the
+    easiest way to filter forbidden NAGL chemistries.
+
+    Parameters
+    ----------
+    smiles
+        A mapped SMILES string representing the molecule to parametrize.
+    force_field
+        A SMIRNOFF Force Field object used to parametrize the molecule.
+    charge_model
+        Charge model to parametrize with. ``"ambertools"``: AmberTools AM1BCC;
+        ``"nagl"``: NAGL ``openff-gnn-am1bcc-0.1.0-rc.3.pt``; ``"openeye"``:
+        OpenEye AM1BCC-ELF10; ``"default_ff_charges"``: Charges as specified in
+        force field.
+
+    Returns
+    -------
+    maybe_interchange
+        The ``Interchange`` corresponding to the given SMILES parametrized with
+        the given force field and charge model, or ``None`` if NAGL raised a
+        ``ValueError`` during charge assignment.
+    """
     molecule = Molecule.from_mapped_smiles(smiles, allow_undefined_stereo=True)
 
     # Assign partial charges with requested charge model
@@ -222,10 +260,35 @@ def smiles_to_interchange(
     )
 
 
+def interchanges_to_smee(
+    smiles_to_interchange_map: Mapping[str, Interchange],
+) -> tuple[TensorForceField, dict[str, TensorTopology]]:
+    """
+    Convert ``Interchange`` objects to a Smee tensor objects.
+    """
+    logger.info("Converting to tensor format...")
+    tensor_force_field, tensor_topologies = smee.converters.convert_interchange(
+        list(smiles_to_interchange_map.values()),
+    )
+    logger.info("Converted.")
+
+    tensor_topology_dict = {
+        smiles: tensor_topology
+        for smiles, tensor_topology in zip(
+            smiles_to_interchange_map.keys(),
+            tensor_topologies,
+            strict=True,
+        )
+    }
+
+    return tensor_force_field, tensor_topology_dict
+
+
 def write_tensor_ff_to_disk(
     output_tensor_ff_path: Path,
     shared_tensor_ff: TensorForceField,
 ):
+    """Write the ``TensorForceField`` to the ``Path`` with ``torch.save``."""
     output_tensor_ff_path.parent.mkdir(exist_ok=True, parents=True)
     torch.save(shared_tensor_ff, output_tensor_ff_path)
 
@@ -234,12 +297,13 @@ def write_tensor_tops_to_disk(
     output_tensor_tops_path: Path,
     tensor_topologies: Mapping[str, TensorTopology],
 ):
-    output_tensor_tops_path.mkdir(exist_ok=True, parents=True)
+    """Write the ``tensor_topologies`` to the ``Path`` with ``torch.save``."""
+    output_tensor_tops_path.parent.mkdir(exist_ok=True, parents=True)
 
     # Save the whole dictionary
     torch.save(
         tensor_topologies,
-        output_tensor_tops_path / "smiles_to_topologies.pt",
+        output_tensor_tops_path,
     )
 
 

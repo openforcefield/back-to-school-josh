@@ -30,7 +30,8 @@ import cyclopts
 import datasets
 import smee.converters
 import torch
-from loguru import Logger, logger
+from loguru import logger
+import loguru._logger
 from openff.interchange import Interchange
 from openff.toolkit import ForceField, Molecule
 from smee import TensorForceField, TensorTopology
@@ -153,10 +154,7 @@ def parametrize_dataset(
 
     logger.info("Constructing interchanges...")
 
-    # get_context("fork") causes memory spike on subsequent calls as memory of
-    # previous calls is duplicated. get_context("forkserver") avoids this, but
-    # breaks when file is called __main__.py
-    with multiprocessing.get_context("forkserver").Pool(
+    with multiprocessing.Pool(
         processes=n_processes,
         initializer=set_logger,
         initargs=(logger,),
@@ -311,7 +309,7 @@ def write_tensor_tops_to_disk(
     )
 
 
-def set_logger(logger_: Logger):
+def set_logger(logger_: loguru._logger.Logger):
     """
     Helper function to sync logger across process pool with forkserver.
 
@@ -328,7 +326,18 @@ def set_logger(logger_: Logger):
 
 
 if __name__ == "__main__":
+    # Set the multiprocessing start method early to avoid issues
+    # set_start_method("fork") causes memory spike on subsequent calls as memory
+    # of previous calls is duplicated. set_start_method("forkserver") avoids
+    # this, but breaks when file is called __main__.py, and also can conceal
+    # logs
+    multiprocessing.set_start_method("forkserver")
+    # Remove the stdout logger sink
+    logger.remove()
+    # Add the file log sink
     logger.add(Path(__file__).with_suffix(".py.log"), delay=True, enqueue=True)
+    # Add back in a stdout sink that can be shared across processes
+    logger.add(print, enqueue=True, colorize=True)
 
     app = cyclopts.App(
         name=(

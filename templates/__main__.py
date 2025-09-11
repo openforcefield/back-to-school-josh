@@ -2,29 +2,57 @@
 """
 TODO: Write me!
 
-Output files:
-    file1
-        Description of file1
-    file2
-        Description of file2
+**Input files:**
+
+File 1
+    File 1 description
+
+File 2
+    File 2 description
+
+**Output files:**
+
+File 1
+    File 1 description
+
+File 2
+    File 2 description
 """
 
 from pathlib import Path
 
-import typer
 from loguru import logger
 
 
-def main():
+def main(*, flag: bool = True):
+    """
+    TODO: write me!
+
+    Parameters
+    ----------
+    flag
+        Help text for flag
+    """
+    logger.info("---------------------- starting script ----------------------")
+
     pass
 
 
 if __name__ == "__main__":
-    logger.add(Path(__file__).with_suffix(".py.log"), delay=True)
-    app = typer.Typer(
-        add_completion=False,
-        rich_markup_mode="rich",
-        pretty_exceptions_enable=False,
+    import sys
+    import cyclopts
+
+    logger.add(Path(__file__).with_suffix(".py.log"), delay=True, enqueue=True)
+
+    app = cyclopts.App(
+        name=(
+            Path(__file__).parent.stem
+            if Path(__file__).name == "__main__.py"
+            else Path(__file__).stem
+        ),
+        help=__doc__,
+        help_format="restructuredtext",
     )
-    app.command(help=__doc__)(main)
-    app()
+    app.default()(main)
+    with logger.catch(onerror=lambda _: sys.exit(1)):
+        app()

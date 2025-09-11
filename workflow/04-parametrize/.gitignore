@@ -1,0 +1,3 @@
+# Outputs of this step are too large for git
+outputs/
+!*.log

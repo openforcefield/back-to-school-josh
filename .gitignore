@@ -213,3 +213,4 @@ __marimo__/
 !*.py.log
 Modified_Seminario_Angles.txt
 Modified_Seminario_Bonds.txt
+.rocm-env/

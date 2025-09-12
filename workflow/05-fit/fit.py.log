@@ -1,0 +1,31 @@
+2025-09-12 17:49:22.564 | INFO     | __main__:main:97 - ---------------------- starting script ----------------------
+2025-09-12 17:49:22.564 | INFO     | __main__:main:99 - Loading tensor force field
+2025-09-12 17:49:27.808 | INFO     | __main__:main:102 - Loading tensor topologies
+2025-09-12 17:49:52.277 | INFO     | __main__:main:108 - Loading training dataset(s)
+2025-09-12 17:49:52.325 | INFO     | __main__:main:113 - Checking training dataset(s)
+2025-09-12 17:49:52.379 | INFO     | __main__:main:116 - Loading test dataset(s)
+2025-09-12 17:49:52.382 | INFO     | __main__:main:121 - Checking test dataset(s)
+2025-09-12 17:49:52.394 | INFO     | __main__:main:126 - Training config: {'attributes': {},
+ 'parameters': {'Angles': {'cols': ['k', 'angle'],
+                           'limits': {'angle': [0.0, 3.141592653589793],
+                                      'k': [0.0, None]},
+                           'scales': {'angle': 0.01, 'k': 0.01}},
+                'Bonds': {'cols': ['k', 'length'],
+                          'limits': {'k': [0.0, None], 'length': [0.0, None]},
+                          'scales': {'k': 0.01, 'length': 1.0}},
+                'ProperTorsions': {'cols': ['k'],
+                                   'limits': {'k': [0.0, None]},
+                                   'scales': {'k': 10.0}}}}
+2025-09-12 17:49:52.394 | INFO     | __main__:train_force_field:233 - Will fit for 1000 epochs with constant learning rate 0.001 and batch size 500
+2025-09-12 17:49:52.394 | INFO     | __main__:train_force_field:237 - torch.cuda.is_available()=True
+2025-09-12 17:49:52.395 | INFO     | __main__:train_force_field:243 - Training on cuda
+2025-09-12 17:49:52.395 | INFO     | __main__:train_force_field:245 - NB: AMD GPUs using ROCm also appear as cuda
+2025-09-12 17:49:52.395 | INFO     | __main__:train_force_field:246 - First available cuda/ROCm device: AMD Radeon RX 7900 XTX
+2025-09-12 17:49:52.395 | INFO     | __main__:train_force_field:250 - Copying topologies to cuda memory...
+2025-09-12 17:50:01.205 | INFO     | __main__:train_force_field:252 - Copied.
+2025-09-12 17:50:01.206 | INFO     | __main__:train_force_field:255 - Initializing trainable_parameters...
+2025-09-12 17:50:01.246 | INFO     | __main__:train_force_field:262 - Initialized.
+2025-09-12 17:50:01.247 | INFO     | __main__:train_force_field:272 - Start training...
+2025-09-12 20:46:59.347 | INFO     | __main__:train_force_field:361 - Saving tetramers-test-fit1/final-force-field.pt
+2025-09-12 20:47:12.259 | INFO     | __main__:main:150 - Converting final FF to SMIRNOFF
+2025-09-12 20:47:13.025 | INFO     | __main__:main:156 - Saving fitted SMIRNOFF force field to tetramers-test-fit1/final.offxml

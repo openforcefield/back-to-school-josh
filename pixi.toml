@@ -25,6 +25,7 @@ matplotlib = ">=3.10.5,<4"
 cyclopts = ">=3.23.1,<4"
 tensorboardx = ">=2.6.2.2,<3"
 json5 = ">=0.12.1,<0.13"
+polars = ">=1.33.1,<2"
 
 [pypi-dependencies]
 back-to-school-josh = { path = "packages", editable = true }

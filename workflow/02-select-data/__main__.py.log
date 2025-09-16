@@ -13,3 +13,24 @@
 2025-09-02 14:30:49.941 | INFO     | __main__:main:127 - Splitting tetramers dataset into train and test
 2025-09-02 14:30:50.219 | INFO     | __main__:train_test_split:369 - split dataset of 999 molecules into training set of 949 and testing set of 50
 2025-09-02 14:30:50.219 | INFO     | __main__:main:133 - Saving tetramers datasets to disk
+2025-09-16 17:33:57.298 | INFO     | __main__:load_spice:155 - Loading ['SPICE DES Monomers Single Points Dataset v1.1', 'SPICE Dipeptides Single Points Dataset v1.3', 'SPICE PubChem Set 1 Single Points Dataset v1.3', 'SPICE PubChem Set 2 Single Points Dataset v1.3', 'SPICE PubChem Set 3 Single Points Dataset v1.3', 'SPICE PubChem Set 4 Single Points Dataset v1.3', 'SPICE PubChem Set 5 Single Points Dataset v1.3', 'SPICE PubChem Set 6 Single Points Dataset v1.3', 'SPICE PubChem Set 7 Single Points Dataset v1.0', 'SPICE PubChem Set 8 Single Points Dataset v1.0', 'SPICE PubChem Set 9 Single Points Dataset v1.0', 'SPICE PubChem Set 10 Single Points Dataset v1.0'] from .data/SPICE-2.0.1.hdf5
+2025-09-16 17:34:46.318 | INFO     | __main__:load_spice:231 - Constructing dataset...
+2025-09-16 17:35:10.413 | INFO     | __main__:load_spice:235 - Dataset constructed with 25607 molecules
+2025-09-16 17:35:10.485 | INFO     | __main__:main:112 - Consolidating molecules with multiple rows in SPICE2
+2025-09-16 17:35:12.296 | INFO     | __main__:consolidate_molecules:358 - Input dataset has 25607 rows, 1279815 total conformations
+2025-09-16 17:35:40.420 | INFO     | __main__:consolidate_molecules:395 - Consolidated dataset has 25607 rows, 1279815 total conformations
+2025-09-16 17:35:43.083 | INFO     | __main__:filter_forces:348 - Keeping 24967/25607 entries (97.50068340688092%).
+2025-09-16 17:35:43.083 | INFO     | __main__:filter_forces:351 - Largest retained MABS force: 258.6161804199219 kcal/mol/Å
+2025-09-16 17:35:43.192 | INFO     | __main__:main:121 - Splitting SPICE2 dataset into train and test
+2025-09-16 17:35:50.003 | INFO     | __main__:train_test_split:427 - split dataset of 24967 molecules into training set of 23719 and testing set of 1248
+2025-09-16 17:35:50.003 | INFO     | __main__:main:127 - Saving SPICE2 datasets to disk
+2025-09-16 17:35:51.605 | INFO     | __main__:load_qcarchive:241 - Loading records...
+2025-09-16 17:35:52.668 | INFO     | __main__:load_qcarchive:250 - Loaded 999 records
+2025-09-16 17:35:52.913 | INFO     | __main__:load_qcarchive:290 - Constructing dataset...
+2025-09-16 17:35:52.958 | INFO     | __main__:load_qcarchive:295 - Dataset constructed with 999 molecules
+2025-09-16 17:35:53.088 | INFO     | __main__:main:133 - Consolidating molecules with multiple rows in tetramers
+2025-09-16 17:35:53.165 | INFO     | __main__:consolidate_molecules:358 - Input dataset has 999 rows, 999 total conformations
+2025-09-16 17:35:53.237 | INFO     | __main__:consolidate_molecules:395 - Consolidated dataset has 200 rows, 999 total conformations
+2025-09-16 17:35:53.239 | INFO     | __main__:main:136 - Splitting tetramers dataset into train and test
+2025-09-16 17:35:53.298 | INFO     | __main__:train_test_split:427 - split dataset of 200 molecules into training set of 190 and testing set of 10
+2025-09-16 17:35:53.298 | INFO     | __main__:main:142 - Saving tetramers datasets to disk

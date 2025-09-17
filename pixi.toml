@@ -30,6 +30,9 @@ polars = ">=1.33.1,<2"
 [pypi-dependencies]
 back-to-school-josh = { path = "packages", editable = true }
 
+[feature.cuda.dependencies]
+pytorch-gpu = "*"
+
 [feature.rocm63]
 pypi-options.extra-index-urls = ["https://download.pytorch.org/whl/rocm6.3"]
 pypi-dependencies.torch = { version = "*", index = "https://download.pytorch.org/whl/rocm6.3" }
@@ -58,6 +61,7 @@ back-to-school-josh = { path = "packages", editable = true }
 
 [environments]
 qubekit = { features = ["qubekit"], no-default-feature = true }
+cuda = { features = ["cuda"], solve-group="cuda" }
 rocm63 = { features = ["rocm63"], solve-group = "rocm63" }
 rocm624 = { features = ["rocm624"], solve-group = "rocm624" }
 

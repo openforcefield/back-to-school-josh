@@ -19,6 +19,7 @@ File 2
     File 2 description
 """
 
+import functools
 import sys
 from collections import defaultdict
 from collections.abc import Sequence
@@ -26,6 +27,7 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any, Literal
 
+import cyclopts
 import datasets
 import descent.targets.energy
 import descent.train
@@ -52,6 +54,7 @@ def main(
     learning_rate: float = 0.001,
     batch_size: int = 500,
     device: Literal["gpu", "cpu", None] = None,
+    keep_dataset_in_memory: bool = False,
     vram_limit_fraction: float = 1.0,
     fitting_dir_path: Path = sibpath("my-smee-fit"),
     smirnoff_template: str = "openff-2.2.1.offxml",
@@ -72,7 +75,7 @@ def main(
         form the training set.
     test_dataset_paths
         List of paths to Smee Huggingface datasets that will be concatenated to
-        form the test set.
+        form the test set. (not used yet)
     training_config_json_path
         JSON5 file consisting of a single object with keys ``"parameters"`` and
         ``"attributes"`` that can be assigned to the ``"parameters"`` and
@@ -86,6 +89,9 @@ def main(
     device
         Device to use to perform optimization; ``None`` or unspecified uses GPU
         if available, but falls back to CPU.
+    keep_dataset_in_memory
+        ``True`` to keep the entire train/test dataset in memory; ``False`` to
+        allow it to be streamed from disk.
     vram_limit_fraction
         The fraction of available VRAM this fit should limit itself to. PyTorch
         keeps a cache of values in VRAM that can grow quite quickly, so setting
@@ -95,6 +101,8 @@ def main(
         Path to save checkpoints and tensorboard logs to
     """
     logger.info("---------------------- starting script ----------------------")
+
+    logger.info(pformat(locals()))
 
     logger.info("Loading tensor force field")
     tensor_ff: TensorForceField = torch.load(tensor_ff_path, weights_only=False)
@@ -107,19 +115,24 @@ def main(
 
     logger.info("Loading training dataset(s)")
     train_dataset = datasets.concatenate_datasets(
-        [Dataset.load_from_disk(str(path)) for path in train_dataset_paths],
+        [
+            Dataset.load_from_disk(str(path), keep_in_memory=keep_dataset_in_memory)
+            for path in train_dataset_paths
+        ],
     )
 
-    logger.info("Checking training dataset(s)")
-    train_dataset = remove_missing_rows(train_dataset, tensor_tops)
+    train_dataset = fix_dataset(train_dataset, tensor_tops)
 
-    logger.info("Loading test dataset(s)")
-    test_dataset = datasets.concatenate_datasets(
-        [Dataset.load_from_disk(str(path)) for path in test_dataset_paths],
-    )
+    # logger.info("Loading test dataset(s)")
+    # test_dataset = datasets.concatenate_datasets(
+    #     [
+    #         Dataset.load_from_disk(str(path), keep_in_memory=keep_dataset_in_memory)
+    #         for path in test_dataset_paths
+    #     ],
+    # )
 
-    logger.info("Checking test dataset(s)")
-    test_dataset = remove_missing_rows(test_dataset, tensor_tops)
+    # logger.info("Checking test dataset(s)")
+    # test_dataset = remove_missing_rows(test_dataset, tensor_tops)
 
     training_config = json5.loads(training_config_json_path.read_text())
 
@@ -129,7 +142,7 @@ def main(
 
     trained_force_field = train_force_field(
         train_data=train_dataset,
-        test_data=test_dataset,
+        # test_data=test_dataset,
         tensor_force_field=tensor_ff,
         parameters={
             k: descent.train.ParameterConfig(**v)
@@ -157,8 +170,9 @@ def main(
     final_smirnoff.to_file(str(final_smirnoff_path))
 
 
-def remove_missing_rows(dataset: Dataset, smiles_to_keep: dict[str, Any]) -> Dataset:
+def fix_dataset(dataset: Dataset, smiles_to_keep: dict[str, Any]) -> Dataset:
     """Return a dataset with rows missing from smiles_to_keep removed."""
+    logger.info("Checking training dataset(s)")
     keep_indices: list[int] = []
     skip_smiles: list[str] = []
     for i, smiles in enumerate(dataset["smiles"]):
@@ -178,7 +192,7 @@ def remove_missing_rows(dataset: Dataset, smiles_to_keep: dict[str, Any]) -> Dat
 def train_force_field(
     *,
     train_data: Dataset,
-    test_data: Dataset,
+    test_data: Dataset | None = None,
     tensor_force_field: TensorForceField,
     parameters: dict[str, descent.train.ParameterConfig],
     attributes: dict[str, descent.train.AttributeConfig],
@@ -201,7 +215,7 @@ def train_force_field(
     train_filename_data
         Training dataset in Huggingface format.
     test_filename_data
-        Test dataset in Huggingface format.
+        Test dataset in Huggingface format.  (not used yet)
     smee_force_field
         SMEE force field tensor object with parameters to optimize.
     topologies
@@ -277,7 +291,7 @@ def train_force_field(
             amsgrad=True,
         )
 
-        epoch_tqdm = tqdm(range(n_epochs), desc="epochs")
+        epoch_tqdm = tqdm(range(n_epochs), desc="epochs", dynamic_ncols=True)
         for i in epoch_tqdm:
             ff = trainable.to_force_field(trainable_parameters)
             epoch_loss = torch.zeros(size=(1,), device=device)
@@ -290,14 +304,18 @@ def train_force_field(
                 desc="computing loss",
                 total=len(train_data),
                 unit="tops",
+                dynamic_ncols=True,
             )
             for cpu_batch in train_dataloader:
                 # Copy the batch to GPU
+                logger.trace("Loading batch to GPU...")
                 batch = [
                     {k: v if k == "smiles" else v.to(device) for k, v in sample.items()}
                     for sample in cpu_batch
                 ]
+                logger.trace("Loaded.")
                 true_batch_size = len(batch)
+                logger.trace("Computing batch loss...")
                 # Compute forces and energies
                 e_ref, e_pred, f_ref, f_pred = descent.targets.energy.predict(
                     batch,  # type: ignore
@@ -311,7 +329,9 @@ def train_force_field(
 
                 # Equal sum of L2 loss on energies and forces
                 batch_loss = batch_loss_energy + batch_loss_force
+                logger.trace("Loss computed.")
 
+                logger.trace("Computing batch gradient...")
                 # Compute the gradient of batch_loss wrt trainable_parameters
                 (batch_grad,) = torch.autograd.grad(
                     batch_loss,
@@ -324,6 +344,7 @@ def train_force_field(
                     grad = batch_grad
                 else:
                     grad += batch_grad
+                logger.trace("Gradient computed.")
 
                 # keep cumulative epoch losses to report MSE at the end
                 epoch_loss += batch_loss.detach()
@@ -348,9 +369,11 @@ def train_force_field(
             writer.flush()
 
             # Perform the optimization step
+            logger.trace("Taking optimization step...")
             trainable_parameters.grad = grad
             optimizer.step()
             optimizer.zero_grad()
+            logger.trace("Step taken.")
 
             if i % 10 == 0:
                 torch.save(
@@ -446,11 +469,23 @@ def tensor_ff_to_smirnoff(
 
 
 if __name__ == "__main__":
-    import sys
-
-    import cyclopts
-
-    logger.add(Path(__file__).with_suffix(".py.log"), delay=True, enqueue=True)
+    # Remove the stdout logger sink
+    logger.remove()
+    # Add the file log sink
+    logger.add(
+        Path(__file__).with_suffix(".py.log"),
+        delay=True,
+        enqueue=True,
+        level="DEBUG",
+    )
+    # Log to terminal with tqdm.write to avoid clashes with progress bars (and
+    # hopefully work across processes?)
+    logger.add(
+        functools.partial(tqdm.write, end=""),
+        enqueue=True,
+        colorize=True,
+        level="TRACE",
+    )
 
     app = cyclopts.App(
         name=(

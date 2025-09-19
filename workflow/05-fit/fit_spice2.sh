@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=jam-spice2-fit1  ## Name of the job.
-#SBATCH -A DMOBLEY_OMSF_GPU32       ## account to charge 
+#SBATCH -A dmobley_lab_gpu          ## account to charge 
 #SBATCH -p gpu                      ## partition name
 #SBATCH -t 3-00:00:00               ## Time limit: 3 days
 #SBATCH --nodes=1                   ## (-N) number of nodes to use

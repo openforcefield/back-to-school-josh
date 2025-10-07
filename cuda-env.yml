@@ -1,0 +1,34 @@
+name: rocm-fitting
+channels:
+  - conda-forge
+  - openeye
+dependencies:
+  - python >=3.11,<3.12
+  - pip
+
+  - smee >=0.16.2,<0.17
+
+  - descent
+  - openff-toolkit
+  - openff-interchange
+
+  - rdkit
+  - openff-qcsubmit
+  - openeye-toolkits
+  - loguru
+  - tqdm
+  - datasets
+
+  - h5py
+  - numpy
+  - pandas
+  - matplotlib
+  - cyclopts
+  - tensorboardx
+  - json5
+
+  - pytorch-gpu
+
+  - pip:
+      - -e ./packages
+      - more-itertools>=10.8.0,<11

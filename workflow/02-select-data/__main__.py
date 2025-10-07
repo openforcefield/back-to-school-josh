@@ -22,6 +22,7 @@ Output files:
         Histogram of max absolute forces and filtered cutoffs
 """
 
+import functools
 import pickle
 import warnings
 from collections.abc import Iterable, Sequence
@@ -33,9 +34,11 @@ import descent.targets.energy
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 import typer
 from loguru import logger
 from openff.units import Quantity, unit
+from pandas import DataFrame
 from qcportal.client import SinglepointRecord
 from rdkit import Chem
 from rdkit.Chem import rdFingerprintGenerator
@@ -106,6 +109,9 @@ def main(
         stop_early=spice_n_records,
     )
 
+    logger.info("Consolidating molecules with multiple rows in SPICE2")
+    spice_ds = consolidate_molecules(spice_ds)
+
     spice_ds = filter_forces(
         spice_ds,
         keep_frac=1.0 - spice_drop_forces,
@@ -123,6 +129,9 @@ def main(
     test_spice_ds.save_to_disk(output_dir / "spice2/test")
 
     tetramers_ds = load_qcarchive(tetramers_dir.glob("records/*/record.pickle"))
+
+    logger.info("Consolidating molecules with multiple rows in tetramers")
+    tetramers_ds = consolidate_molecules(tetramers_ds)
 
     logger.info("Splitting tetramers dataset into train and test")
     train_tetramers_ds, test_tetramers_ds = train_test_split(
@@ -207,6 +216,9 @@ def load_spice(
             assert dft_total_gradient.shape == (n_conformers, n_atoms, 3), (
                 f"expected {(n_conformers, n_atoms, 3)}, got {dft_total_gradient.shape} for {smiles}"
             )
+
+            if n_conformers == 1:
+                logger.warning(f"SMILES {smiles} has only one conformer")
 
             data.append(
                 descent.targets.energy.Entry(
@@ -340,6 +352,52 @@ def filter_forces(
 
     print(indices, indices.sort())
     return ds.select(indices)
+
+
+def consolidate_molecules(dataset: datasets.Dataset) -> datasets.Dataset:
+    logger.info(
+        f"Input dataset has {dataset.num_rows} rows, "
+        + f"{functools.reduce(lambda acc, elem: acc + len(elem), dataset['energy'], 0)}"
+        + " total conformations",
+    )
+
+    df = dataset.to_pandas()
+    assert isinstance(df, DataFrame)
+
+    data = []
+    for smiles, group in tqdm(df.groupby("smiles"), desc="consolidating"):
+        assert isinstance(smiles, str)
+
+        coords = torch.cat([tensor(x) for x in group["coords"]])
+        energy = torch.cat([tensor(x) for x in group["energy"]])
+        forces = torch.cat([tensor(x) for x in group["forces"]])
+
+        assert forces.ndim == 1
+        assert coords.ndim == 1
+        assert energy.ndim == 1
+
+        n_confs = len(energy)
+        n_atoms = len(coords) // (n_confs * 3)
+
+        data.append(
+            descent.targets.energy.Entry(
+                smiles=smiles,
+                energy=energy.reshape(n_confs),
+                coords=coords.reshape(n_confs, n_atoms, 3),
+                forces=forces.reshape(n_confs, n_atoms, 3),
+            ),
+        )
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        dataset = descent.targets.energy.create_dataset(data)
+
+    logger.info(
+        f"Consolidated dataset has {dataset.num_rows} rows, "
+        + f"{functools.reduce(lambda acc, elem: acc + len(elem), dataset['energy'], 0)}"
+        + " total conformations",
+    )
+    return dataset
 
 
 def train_test_split(

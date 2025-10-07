@@ -1,0 +1,21 @@
+{
+  "parameters": {
+    "Bonds": {
+      "cols": ["k", "length"],
+      "scales": { "k": 1.0e-2, "length": 1.0 },
+      "limits": { "k": [0.0, null], "length": [0.0, null] },
+    },
+    "Angles": {
+      "cols": ["k", "angle"],
+      "scales": { "k": 1.0e-2, "angle": 1.0e-2 },
+      "limits": { "k": [0.0, null], "angle": [0.0, 3.141592653589793] },
+    },
+    "ProperTorsions": {
+      "cols": ["k"],
+      "scales": { "k": 1.0e1 },
+      "limits": { "k": [0.0, null] },
+    },
+  },
+
+  "attributes": {},
+}

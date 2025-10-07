@@ -28,6 +28,17 @@ repos:
         language: system
         files: "pixi.lock"
         pass_filenames: false
+      - id: export-solved-rocm-env
+        name: export-solved-rocm-env
+        entry: |-
+          bash -c '
+            micromamba env export -p ./.rocm-env > solved-rocm-env.yml \
+            && git add --intent-to-add solved-rocm-env.yml                         \
+            && git diff --exit-code --no-patch solved-rocm-env.yml                 \
+          '
+        language: system
+        files: "rocm-env.yml"
+        pass_filenames: false
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
